@@ -11,28 +11,31 @@ using namespace std;
 
 //configuration structure
 lfmscfg cfg;
+lastfm_session session;
 
 int main(int argc, char* argv[])
 {
   short int retval;
-  string config_file;
 
   //initialize defaults;
-  config_file = "~/.config/lfms/config";
+  cfg.display_version = false;
+  cfg.display_help = false;
+  cfg.config_file =  "~/.config/lfms/config";
+  cfg.queue_file = "~/.config/lfms/queue";
+  cfg.session_file = "~/.config/lfms/session";
+  cfg.mode = 's';
+  cfg.host = "localhost";
+  cfg.port = 8008;
 
-  retval = parse_command_line(argc, argv, &config_file);
-  //help or version was requested
-  if ((0 < retval) && (retval <= 2))
+  retval = parse_command_line(argc, argv);
+
+  //help or version was requested or error
+  if (cfg.display_version || cfg.display_help || (retval != 0))
   {
-    return 0;
-  }
-  //unexpected error
-  else if (retval > 2)
-  {
-    return 1;
+    return retval;
   }
 
-  retval = read_config(&config_file);
+  retval = read_config(&cfg.config_file);
   //error reading config file
   if (0 != retval)
   {
@@ -41,16 +44,35 @@ int main(int argc, char* argv[])
   //print debug message
   else
   {
-    printf("config file '%s' read successfully\n", config_file.c_str());
+    printf("config file '%s' read successfully\n", cfg.config_file.c_str());
   }
 
   printf("user: %s\n", cfg.username.c_str());
   printf("pass: %s\n", cfg.password.c_str());
+  printf("host: %s\n", cfg.host.c_str());
+  printf("port: %d\n", cfg.port);
 
-  return 0;
+  retval = handshake();
+
+  if (retval != 0)
+  {
+      fprintf(stderr, "error during handshake\n");
+  }
+
+  switch (cfg.mode)
+  {
+      case 's':
+          retval = submit_track();
+          break;
+      case 'n':
+          retval = now_playing();
+          break;
+  }
+
+  return retval;
 }
 
-int parse_command_line(int argc, char *argv[], string *config_file)
+int parse_command_line(int argc, char *argv[])
 {
   int argument;
 
@@ -61,17 +83,19 @@ int parse_command_line(int argc, char *argv[], string *config_file)
     switch (argument)
     {
       case 'h':
-        printf("lfms, usage: lfms [-h] [-v] [-c config_file]\n\
+          printf("lfms, usage: lfms [-h] [-v] [-c config_file]\n\
  -h               print this help\n\
  -v               print version\n\
- -c <config_file> use <config_file> as configuration file; default is ~/.config/lfms/config\n\n");
-        return 1;
+ -c <config_file> use <config_file> as configuration file; default is ~/.config/lfms/config\n");
+          cfg.display_help = true;
+          break;
       case 'v':
-	printf("lfms, version 0.0.1\n");
-        return 2;
+          printf("lfms, version 0.0.1\n");
+          cfg.display_version = true;
+          break;
       case 'c':
-	*config_file = optarg;
-        break;
+          cfg.config_file = optarg;
+          break;
     }
   }
   while (argument != -1);
@@ -83,13 +107,9 @@ int read_config(string *path)
 {
   const int max_config_size = 8 * 1024;
   short int retval = 0;
-  string config;
-  const char *param_username = "username";
-  const char *param_password = "password";
-  string config_line;
-  string::iterator it;
+  string line_buffer;
   FILE *file;
-  char fline[1000];
+  char read_buffer[200];
 
   if (path->length() > 0)
   {
@@ -102,54 +122,94 @@ int read_config(string *path)
     }
     else
     {
-      while (!feof(file) && (config.length() <= max_config_size))
+      //read file
+      while (!feof(file) && (ftell(file) <= max_config_size))
       {
-	fgets(fline, sizeof(fline), file);
-	config += fline;
-	fline[0] = 0;
+          //read a buffer and append it to the line_buffer
+          fgets(read_buffer, sizeof(read_buffer), file);
+          line_buffer += read_buffer;
+
+          //if newline was found or the end of the file has been reached
+          if ((line_buffer.find("\n") != line_buffer.npos) || feof(file))
+          {
+              string param = line_buffer.substr(0, line_buffer.find("="));
+              
+              //read value and update cfg
+              if (param.length() < line_buffer.length())
+              {
+                //treat everything after '=' as value
+                string value = line_buffer.substr(param.length() + 1, line_buffer.find("\n") - param.length() - 1);
+
+                //update known cfg parameters with values from file
+                if (param.compare("username") == 0)
+                {
+                  cfg.username = value;
+                }
+                else if (param.compare("password") == 0)
+                {
+                  cfg.password = value;
+                }
+                else if (param.compare("host") == 0)
+                {
+                  cfg.host = value;
+                }
+                else if (param.compare("port") == 0)
+                {
+                  cfg.port = atoi(value.c_str());
+                }
+
+              }
+              
+              //clear line_buffer
+              line_buffer.clear();
+          }
       }
 
-      if (!feof(file) || (config.length() > max_config_size))
+      //print error if file is too big
+      if (!feof(file) || (ftell(file) > max_config_size))
       {
-	fprintf(stderr, "config file '%s' is larger than %d bytes; exiting\n", path->c_str(), max_config_size);
-	retval = 2;
-      }
-      else
-      {
-
-	int char_pos = 0, current_pos = 0;
-	
-	while (char_pos < config.length())
-	{
-	  current_pos = char_pos;
-	  char_pos = config.find("\n", current_pos);
-	  string line = config.substr(current_pos, char_pos);
-	  string param = line.substr(0, line.find("="));
-
-	  if (param.length() < line.length())
-	  {
-	    string value = line.substr(param.length() + 1);
-
-	    if (param.compare("username") == 0)
-	    {
-	      cfg.username = value;
-	    }
-	    else if (param.compare("password") == 0)
-	    {
-	      cfg.password = value;
-	      printf("length: %02d\n", param.length());
-	    }
-
-	  }
-
-	  char_pos = current_pos + line.length() + 1;
-	}
+          fprintf(stderr, "config file '%s' is larger than %d bytes; exiting\n", path->c_str(), max_config_size);
+          retval = 2;
       }
 
       fclose(file);
     }
 
   }
+  else
+  {
+      retval = 3;
+  }
 
   return retval;
+}
+
+int read_session()
+{
+    return 0;
+}
+
+int handshake()
+{
+    int retval;
+
+    retval = read_session();
+
+    //if read_session failed or session is not active then perform a handshake
+    if ((retval != 0) || !session.is_active)
+    {
+        
+    }
+
+    return retval;
+}
+
+int submit_track()
+{
+
+}
+
+int now_playing()
+{
+
 }
