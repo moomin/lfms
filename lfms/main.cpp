@@ -1,7 +1,9 @@
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <cstring>
+#include <cstdlib>
 #include <unistd.h>
 
 using namespace std;
@@ -35,6 +37,8 @@ int main(int argc, char* argv[])
     return retval;
   }
 
+  retval = resolve_dirs();
+
   retval = read_config(&cfg.config_file);
   //error reading config file
   if (0 != retval)
@@ -46,11 +50,6 @@ int main(int argc, char* argv[])
   {
     printf("config file '%s' read successfully\n", cfg.config_file.c_str());
   }
-
-  printf("user: %s\n", cfg.username.c_str());
-  printf("pass: %s\n", cfg.password.c_str());
-  printf("host: %s\n", cfg.host.c_str());
-  printf("port: %d\n", cfg.port);
 
   retval = handshake();
 
@@ -184,16 +183,32 @@ int read_config(string *path)
   return retval;
 }
 
-int read_session()
+int read_session(string &path)
 {
-    return 0;
+    ifstream file(path.c_str());
+    string line;
+    short int lines_read = 0, retval = 0;
+    char buf[PATH_MAX*3];
+
+    while(file.good())
+    {
+        file >> line;
+        printf("line: %s\n", line.c_str());
+    }
+
+    if (!file.eof())
+    {
+        retval = 1;
+    }
+
+    return retval;
 }
 
 int handshake()
 {
     int retval;
 
-    retval = read_session();
+    retval = read_session(cfg.session_file);
 
     //if read_session failed or session is not active then perform a handshake
     if ((retval != 0) || !session.is_active)
@@ -212,4 +227,11 @@ int submit_track()
 int now_playing()
 {
 
+}
+
+int resolve_dirs()
+{
+    //realpath()
+    //getpwent()
+    return 0;
 }

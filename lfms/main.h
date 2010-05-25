@@ -33,7 +33,8 @@ typedef struct lastfm_track {
 
 int parse_command_line(int, char *[]);
 int read_config(string *);
-int read_session();
+int read_session(string *);
 int handshake();
 int submit_track();
 int now_playing();
+int resolve_dirs();
