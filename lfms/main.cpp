@@ -4,7 +4,13 @@
 #include <string>
 #include <cstring>
 #include <cstdlib>
+
+#include <iomanip>
+
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <pwd.h>
 
 using namespace std;
 
@@ -36,8 +42,6 @@ int main(int argc, char* argv[])
   {
     return retval;
   }
-
-  retval = resolve_dirs();
 
   retval = read_config(&cfg.config_file);
   //error reading config file
@@ -183,17 +187,46 @@ int read_config(string *path)
   return retval;
 }
 
+string resolve_path(string &path)
+{
+    string real_path;
+    struct passwd *pwent;
+    char buf[PATH_MAX*3];
+    struct stat *file_stat;
+
+    //resolve homedir
+    if (path.find("~") == 0)
+    {
+        pwent = getpwuid(getuid());
+        real_path = pwent->pw_dir;
+        real_path.append(path.substr(1));
+    }
+
+    realpath(real_path.c_str(), buf);
+    real_path = buf;
+
+    stat(real_path.c_str(), file_stat);
+
+    if (!(file_stat->st_mode & S_IFREG))
+    {
+        real_path.clear();
+    }
+
+    printf("debug translating '%s' into '%s'\n", path.c_str(), real_path.c_str());
+    return real_path;
+}
+
 int read_session(string &path)
 {
-    ifstream file(path.c_str());
+    fstream file;
     string line;
     short int lines_read = 0, retval = 0;
-    char buf[PATH_MAX*3];
+    file.open(resolve_path(path).c_str());
 
     while(file.good())
     {
         file >> line;
-        printf("line: %s\n", line.c_str());
+        printf("line: %s, %d\n", line.c_str(), file.flags());
     }
 
     if (!file.eof())
@@ -229,9 +262,3 @@ int now_playing()
 
 }
 
-int resolve_dirs()
-{
-    //realpath()
-    //getpwent()
-    return 0;
-}
