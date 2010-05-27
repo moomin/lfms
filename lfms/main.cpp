@@ -5,19 +5,18 @@
 #include <cstring>
 #include <cstdlib>
 
-#include <iomanip>
-
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <pwd.h>
+#include <limits.h>
 
 using namespace std;
 
 //own headers
 #include "main.h"
 
-//configuration structure
+//global structures
 lfmscfg cfg;
 lastfm_session session;
 
@@ -34,6 +33,7 @@ int main(int argc, char* argv[])
   cfg.mode = 's';
   cfg.host = "localhost";
   cfg.port = 8008;
+  session.is_active = false;
 
   retval = parse_command_line(argc, argv);
 
@@ -189,10 +189,10 @@ int read_config(string *path)
 
 string resolve_path(string &path)
 {
-    string real_path;
     struct passwd *pwent;
+    struct stat file_stat;
     char buf[PATH_MAX*3];
-    struct stat *file_stat;
+    string real_path;
 
     //resolve homedir
     if (path.find("~") == 0)
@@ -205,33 +205,63 @@ string resolve_path(string &path)
     realpath(real_path.c_str(), buf);
     real_path = buf;
 
-    stat(real_path.c_str(), file_stat);
-
-    if (!(file_stat->st_mode & S_IFREG))
+    if ((0 != stat(real_path.c_str(), &file_stat)) || !(file_stat.st_mode & S_IFREG))
     {
         real_path.clear();
     }
 
-    printf("debug translating '%s' into '%s'\n", path.c_str(), real_path.c_str());
+    printf("debug: resolving path '%s' into '%s'\n", path.c_str(), real_path.c_str());
     return real_path;
 }
 
 int read_session(string &path)
 {
-    fstream file;
-    string line;
-    short int lines_read = 0, retval = 0;
+    ifstream file;
+    char line[1025];
+    short int line_number = 0, retval = 0;
+    
     file.open(resolve_path(path).c_str());
 
-    while(file.good())
+    if(!file.is_open())
     {
-        file >> line;
-        printf("line: %s, %d\n", line.c_str(), file.flags());
+      retval = 1;
     }
-
-    if (!file.eof())
+    else
     {
-        retval = 1;
+      while(!file.eof())
+      {
+        file.getline(line, sizeof(line) - 1);
+
+        line_number++;
+
+        //break if newline was not reached
+        if (file.fail() && !file.eof())
+        {
+          retval = 1;
+          break;
+        }
+        else if (line_number == 1)
+        {
+          session.status = line;
+          session.is_active = (0 == session.status.compare("OK"));
+        }
+        else if (line_number == 2)
+        {
+          session.id = line;
+        }
+        else if (line_number == 3)
+        {
+          session.now_playing_url = line;
+        }
+        else if (line_number == 4)
+        {
+          session.submission_url = line;
+
+          //we don't need more than 4 lines
+          file.close();
+          break;
+        }
+      }
     }
 
     return retval;
@@ -246,8 +276,16 @@ int handshake()
     //if read_session failed or session is not active then perform a handshake
     if ((retval != 0) || !session.is_active)
     {
-        
+      //perform handshake
+      retval = 1;
     }
+
+    printf("\nsession info:\n  is_active: %d\n  status: %s\n  id: %s\n  now_playing: %s\n  submission: %s\n\n",\
+           session.is_active,
+           session.status.c_str(),
+           session.id.c_str(),
+           session.now_playing_url.c_str(),
+           session.submission_url.c_str());
 
     return retval;
 }

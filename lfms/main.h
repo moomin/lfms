@@ -37,4 +37,4 @@ int read_session(string *);
 int handshake();
 int submit_track();
 int now_playing();
-string resolve_path(string *);
+string resolve_path(string &);
