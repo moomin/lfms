@@ -1,6 +1,8 @@
 #include <string>
+#include <cstdlib>
 #include <sys/stat.h>
 #include <pwd.h>
+#include <limits.h>
 #include "helpers.h"
 
 string resolve_path(string &path)
@@ -26,6 +28,5 @@ string resolve_path(string &path)
         real_path.clear();
     }
 
-    printf("debug: resolving path '%s' into '%s'\n", path.c_str(), real_path.c_str());
     return real_path;
 }

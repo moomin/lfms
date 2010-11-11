@@ -1,8 +1,11 @@
 #include <string>
 
-using namespace std;
+#ifndef LFMS_CONFIG_H
+#define LFMS_CONFIG_H
 
 #define MAX_CONFIG_SIZE 8192
+
+using namespace std;
 
 class LfmsConfig {
     string error;
@@ -26,3 +29,5 @@ class LfmsConfig {
     int readConfigFile();
     int readCommandLine(int argc, char *argv[]);
 };
+
+#endif

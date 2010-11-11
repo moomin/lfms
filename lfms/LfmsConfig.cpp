@@ -1,3 +1,5 @@
+#include <fstream>
+#include <cstdlib>
 #include "LfmsConfig.h"
 #include "helpers.h"
 
@@ -31,73 +33,53 @@ string LfmsConfig::getErrorMessage()
 
 int LfmsConfig::readConfigFile()
 {
-  short int retval = 0;
-  string line_buffer;
-  FILE *file;
-  char read_buffer[200];
+  string line;
+  ifstream file;
 
   if (configFile.length() > 0)
   {
-    file = fopen(resolve_path(configFile).c_str(), "r");
+      file.open(resolve_path(configFile).c_str());
 
-    if (NULL == file)
-    {
-        error = "cannot read config file ''";
-        retval = 1;
-    }
-    else
-    {
-      //read file
-      while (!feof(file) && (ftell(file) <= MAX_CONFIG_SIZE))
+      if (!file.is_open())
       {
-          //read a buffer and append it to the line_buffer
-          fgets(read_buffer, sizeof(read_buffer), file);
-          line_buffer += read_buffer;
-
-          //if newline was found or the end of the file has been reached
-          if ((line_buffer.find("\n") != line_buffer.npos) || feof(file))
+          error = "cannot read config file ''";
+      }
+      else
+      {
+          //read file
+          while (getline(file, line))
           {
-              string param = line_buffer.substr(0, line_buffer.find("="));
+              string param = line.substr(0, line.find("="));
 
               //read value and update cfg
-              if (param.length() < line_buffer.length())
+              if (param.length() < line.length())
               {
-                //treat everything after '=' as value
-                string value = line_buffer.substr(param.length() + 1, line_buffer.find("\n") - param.length() - 1);
+                  //treat everything after '=' as value
+                  string value = line.substr(param.length() + 1,
+                                         line.find("\n") - param.length() - 1);
 
-                //update known cfg parameters with values from file
-                if (param.compare("username") == 0)
-                {
-                  username = value;
-                }
-                else if (param.compare("password") == 0)
-                {
-                  password = value;
-                }
-                else if (param.compare("host") == 0)
-                {
-                  host = value;
-                }
-                else if (param.compare("port") == 0)
-                {
-                  port = atoi(value.c_str());
-                }
-
+                  //update known cfg parameters with values from file
+                  if (param.compare("username") == 0)
+                  {
+                      username = value;
+                  }
+                  else if (param.compare("password") == 0)
+                  {
+                      password = value;
+                  }
+                  else if (param.compare("host") == 0)
+                  {
+                      host = value;
+                  }
+                  else if (param.compare("port") == 0)
+                  {
+                      port = atoi(value.c_str());
+                  }
               }
-
-              //clear line_buffer
-              line_buffer.clear();
           }
-      }
 
-      //print error if file is too big
-      if (!feof(file) || (ftell(file) > MAX_CONFIG_SIZE))
-      {
-          error = "config file '%s' is larger than %d bytes";
+          file.close();
       }
-
-      fclose(file);
-    }
 
   }
   else
