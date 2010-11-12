@@ -2,8 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-// not required in Linux
-// #include <cstring>
 #include <cstdlib>
 
 #include <sys/types.h>

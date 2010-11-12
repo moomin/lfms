@@ -10,8 +10,6 @@ class LfmsSession {
     LfmsConfig config;
     bool isActive;
     string status, id;
-    string nowPlayingUrl;
-    string submissionUrl;
 
     string error;
 
@@ -20,9 +18,8 @@ class LfmsSession {
     int init(LfmsConfig cfg);
     string getErrorMessage();
 
-    int handshake();
     int restore();
-    int open();
+    int getMobileSession();
     int save();
 
 };

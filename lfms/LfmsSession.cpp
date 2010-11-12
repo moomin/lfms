@@ -72,3 +72,9 @@ int LfmsSession::restore()
 
     return (error.length() > 0);
 }
+
+int LfmsSession::getMobileSession()
+{
+
+    return 0;
+}
