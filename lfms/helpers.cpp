@@ -1,11 +1,13 @@
 #include <string>
+#include <vector>
 #include <cstdlib>
 #include <sys/stat.h>
 #include <pwd.h>
 #include <limits.h>
+#include <cstdio>
 #include "helpers.h"
 
-string resolve_path(string &path)
+string resolve_path(const string &path)
 {
     struct passwd *pwent;
     struct stat file_stat;
@@ -29,4 +31,26 @@ string resolve_path(string &path)
     }
 
     return real_path;
+}
+
+string get_md5hex(const string & str)
+{
+    unsigned char md5[MD5_DIGEST_LENGTH + 1];
+    
+    //we need this because MD5() expects unsigned char
+    vector<unsigned char> charV(str.begin(), str.end());
+
+    char hexCharacter[3];
+    int position;
+    string hexString;
+
+    MD5(&charV[0], charV.size(), md5);
+
+    for (position = 0; position < MD5_DIGEST_LENGTH; position++)
+    {
+        sprintf(hexCharacter, "%x", md5[position]);
+        hexString += hexCharacter;
+    }
+
+    return hexString;
 }

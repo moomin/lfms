@@ -14,11 +14,13 @@ using namespace std;
 #include "helpers.h"
 #include "LfmsConfig.h"
 #include "LfmsSession.h"
+#include "LfmsWsApi.h"
 
 int main(int argc, char* argv[])
 {
   LfmsConfig cfg;
   LfmsSession session;
+  LfmsWsApi api;
   short int retval;
 
   retval = cfg.readCommandLine(argc, argv);
@@ -46,6 +48,10 @@ int main(int argc, char* argv[])
   {
       fprintf(stderr, "session error: %s\n", session.getErrorMessage().c_str());
   }
+
+  api.setAccountInfo("apikeyvalue", "apisecretvalue");
+  api.setServiceInfo("http://localhost/", 8001);
+  printf("request: %s\n", api.getMobileSession("dusoft_ua", "mypass").c_str());
 
   switch (cfg.mode)
   {

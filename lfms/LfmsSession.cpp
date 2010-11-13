@@ -53,16 +53,6 @@ int LfmsSession::restore()
             else if (line_number == 2)
             {
                 id = line;
-            }
-            else if (line_number == 3)
-            {
-                nowPlayingUrl = line;
-            }
-            else if (line_number == 4)
-            {
-                submissionUrl = line;
-
-                //we don't need more than 4 lines
                 break;
             }
         }

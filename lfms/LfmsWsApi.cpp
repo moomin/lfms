@@ -1,4 +1,7 @@
+#include <cstdio>
+#include <openssl/md5.h>
 #include "LfmsWsApi.h"
+#include "helpers.h"
 
 int LfmsWsApi::setAccountInfo(const string& key, const string& secret)
 {
@@ -8,7 +11,7 @@ int LfmsWsApi::setAccountInfo(const string& key, const string& secret)
     return 0;
 }
 
-int LfmsWsApi::setServiceInfo(const string& url, const int& port)
+int LfmsWsApi::setServiceInfo(const string& url, int port)
 {
     apiUrl = url;
     apiPort = port;
@@ -23,23 +26,57 @@ int LfmsWsApi::setSessionId(const string& id)
     return 0;
 }
 
-string LfmsWsApi::signCall(const string& params)
-{
-
-}
-
-string LfmsWsApi::call(const string& method, paramsMap params)
+string LfmsWsApi::getCallSignature(paramsMap& params)
 {
     paramsMap::iterator it;
-    
-    params.insert(make_pair("api_key", apiKey));
+    string stringToSign;
 
-    it = params.begin();
-
-    for ( it = params.begin(); it != params.end(); it++)
+    //order all the parameters alphabetically by parameter
+    //name and concatenate them into one string using
+    //a <name><value> scheme
+    for (it = params.begin(); it != params.end(); it++)
     {
-        
+        stringToSign += (*it).first + (*it).second;
     }
 
+    //append secret to this string
+    stringToSign += apiSecret;
 
+    return get_md5hex(stringToSign);
+}
+
+string LfmsWsApi::call(const string& method, paramsMap& params)
+{
+    paramsMap::iterator it;
+    string urlArguments;
+    
+    //add parameters required in all calls
+    params["api_key"] = apiKey;
+    params["method"] = method;
+
+    //add signature
+    params["api_sig"] = getCallSignature(params);
+
+    for (it = params.begin(); it != params.end(); it++)
+    {
+        if (it != params.begin())
+        {
+            urlArguments += "&";
+        }
+
+        urlArguments += (*it).first +"="+ (*it).second;
+    }
+
+    return apiUrl + "?" + urlArguments;
+}
+
+string LfmsWsApi::getMobileSession(const string& username, const string& password)
+{
+    paramsMap params;
+
+    params["username"] = username;
+    params["authToken"] = get_md5hex(username +
+                                     get_md5hex(password));
+
+    return call("getMobileSession", params);
 }

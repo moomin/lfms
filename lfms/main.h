@@ -10,7 +10,7 @@
 int submit_track();
 int now_playing();
 
-typedef map<std::string, std::string> paramsMap;
-typedef pair<std::string, std::string> paramsPair;
+typedef std::map<std::string, std::string> paramsMap;
+typedef std::pair<std::string, std::string> paramsPair;
 
 #endif
