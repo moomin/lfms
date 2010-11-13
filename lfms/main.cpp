@@ -25,8 +25,8 @@ int main(int argc, char* argv[])
 
   retval = cfg.readCommandLine(argc, argv);
 
-  api.setAccountInfo("apikeyvalue", "apisecretvalue");
-  api.setServiceInfo("http://localhost/", 8001);
+  api.setAccountInfo(LFMS_API_KEY, LFMS_API_SECRET);
+  api.setServiceInfo(LFMS_API_URL, 8001);
 
   //help or version was requested or error
   if (cfg.displayVersion || cfg.displayHelp || (retval != 0))
