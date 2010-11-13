@@ -1,31 +1,19 @@
 #include <fstream>
 #include "LfmsSession.h"
-#include "LfmsConfig.h"
 #include "helpers.h"
-
-LfmsSession::LfmsSession()
-{
-    isActive = false;
-}
-
-int LfmsSession::init(LfmsConfig cfg)
-{
-    config = cfg;
-    return 0;
-}
 
 string LfmsSession::getErrorMessage()
 {
     return error;
 }
 
-int LfmsSession::restore()
+int LfmsSession::restore(const string & path)
 {
     ifstream file;
     short int line_number = 0, retval = 0;
     string line;
     
-    file.open(resolve_path(config.sessionFile).c_str());
+    file.open(resolve_path(path).c_str());
 
     if(!file.is_open())
     {
@@ -47,12 +35,11 @@ int LfmsSession::restore()
             }
             else if (line_number == 1)
             {
-                status = line;
-                isActive = (0 == status.compare("OK"));
+                key = line;
             }
             else if (line_number == 2)
             {
-                id = line;
+                name = line;
                 break;
             }
         }
@@ -61,10 +48,4 @@ int LfmsSession::restore()
     }
 
     return (error.length() > 0);
-}
-
-int LfmsSession::getMobileSession()
-{
-
-    return 0;
 }

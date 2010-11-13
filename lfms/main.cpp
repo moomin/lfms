@@ -24,7 +24,9 @@ int main(int argc, char* argv[])
   short int retval;
 
   retval = cfg.readCommandLine(argc, argv);
-  session.init(cfg);
+
+  api.setAccountInfo("apikeyvalue", "apisecretvalue");
+  api.setServiceInfo("http://localhost/", 8001);
 
   //help or version was requested or error
   if (cfg.displayVersion || cfg.displayHelp || (retval != 0))
@@ -44,35 +46,21 @@ int main(int argc, char* argv[])
     printf("config file '%s' read successfully\n", cfg.configFile.c_str());
   }
 
-  if (session.restore())
+  if (session.restore(cfg.sessionFile))
   {
+      api.getMobileSession(cfg.username, cfg.password);
       fprintf(stderr, "session error: %s\n", session.getErrorMessage().c_str());
   }
-
-  api.setAccountInfo("apikeyvalue", "apisecretvalue");
-  api.setServiceInfo("http://localhost/", 8001);
-  printf("request: %s\n", api.getMobileSession("dusoft_ua", "mypass").c_str());
 
   switch (cfg.mode)
   {
       case 's':
-          retval = submit_track();
+          //          retval = submit_track();
           break;
       case 'n':
-          retval = now_playing();
+          //          retval = now_playing();
           break;
   }
 
   return retval;
 }
-
-int submit_track()
-{
-
-}
-
-int now_playing()
-{
-
-}
-

@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <openssl/md5.h>
 #include "LfmsWsApi.h"
 #include "helpers.h"
 
@@ -75,8 +74,8 @@ string LfmsWsApi::getMobileSession(const string& username, const string& passwor
     paramsMap params;
 
     params["username"] = username;
-    params["authToken"] = get_md5hex(username +
-                                     get_md5hex(password));
+    //generate token; password should already be an md5 string
+    params["authToken"] = get_md5hex(username + password);
 
     return call("getMobileSession", params);
 }

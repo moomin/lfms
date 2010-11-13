@@ -7,9 +7,6 @@
 #define LFMS_API_KEY "1234567890qwertyuioplkjhgfdsazxc"
 #define LFMS_SECRET "mysecret"
 
-int submit_track();
-int now_playing();
-
 typedef std::map<std::string, std::string> paramsMap;
 typedef std::pair<std::string, std::string> paramsPair;
 

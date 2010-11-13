@@ -15,7 +15,7 @@ LfmsConfig.o: LfmsConfig.cpp
 LfmsSession.o: LfmsSession.cpp
 	g++ -c LfmsSession.cpp
 
-LfmsWmApi.o: LfmsWsApi.cpp
+LfmsWsApi.o: LfmsWsApi.cpp
 	g++ -c LfmsWsApi.cpp
 
 clean:
