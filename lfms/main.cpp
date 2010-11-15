@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
     printf("config file '%s' read successfully\n", cfg.configFile.c_str());
   }
 
-  if (session.restore(cfg.sessionFile))
+  if (!session.restore(cfg.sessionFile))
   {
       api.getMobileSession(cfg.username, cfg.password);
       fprintf(stderr, "session error: %s\n", session.getErrorMessage().c_str());

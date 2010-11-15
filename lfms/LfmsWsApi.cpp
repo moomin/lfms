@@ -1,5 +1,6 @@
 #include <cstdio>
 #include "LfmsWsApi.h"
+#include "HttpClient.h"
 #include "helpers.h"
 
 int LfmsWsApi::setAccountInfo(const string& key, const string& secret)
@@ -46,9 +47,6 @@ string LfmsWsApi::getCallSignature(paramsMap& params)
 
 string LfmsWsApi::call(const string& method, paramsMap& params)
 {
-    paramsMap::iterator it;
-    string urlArguments;
-    
     //add parameters required in all calls
     params["api_key"] = apiKey;
     params["method"] = method;
@@ -56,17 +54,19 @@ string LfmsWsApi::call(const string& method, paramsMap& params)
     //add signature
     params["api_sig"] = getCallSignature(params);
 
-    for (it = params.begin(); it != params.end(); it++)
-    {
-        if (it != params.begin())
-        {
-            urlArguments += "&";
-        }
+    HttpClient http;
 
-        urlArguments += (*it).first +"="+ (*it).second;
+    int httpStatus = http.request("POST", apiUrl, params);
+    if (0 == httpStatus)
+    {
+        printf("http answer: %s\n", http.getAnswer().c_str());
+    }
+    else
+    {
+        printf("http error: %d", httpStatus);
     }
 
-    return apiUrl + "?" + urlArguments;
+    return http.getAnswer();
 }
 
 string LfmsWsApi::getMobileSession(const string& username, const string& password)
