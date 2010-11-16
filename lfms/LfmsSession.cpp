@@ -39,28 +39,11 @@ bool LfmsSession::restore(const string & path)
     }
     else
     {
-        while(getline(file, line))
-        {
-            printf("the line: %s\n", line.c_str());
-
-            line_number++;
-
-            //break if newline was not reached
-            if (file.fail() && !file.eof())
-            {
-                error = "no newline was detected";
-                break;
-            }
-            else if (line_number == 1)
-            {
-                key = line;
-            }
-            else if (line_number == 2)
-            {
-                name = line;
-                break;
-            }
-        }
+        getline(file, status);
+        getline(file, name);
+        getline(file, key);
+        getline(file, line);
+        isSubscriber = (line.compare("0") != 0);
 
         file.close();
     }
