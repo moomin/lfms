@@ -55,14 +55,12 @@ int main(int argc, char* argv[])
   api.setAccountInfo(LFMS_API_KEY, LFMS_API_SECRET);
   api.setServiceInfo(LFMS_API_URL);
 
-  if (!session.restore(cfg.sessionFile))
-  {
-      session = api.getMobileSession(cfg.username, cfg.password);
-  }
+  session.restore(cfg.sessionFile);
 
-  if (session.getStatus().compare("ok") == 0)
+  if (session.getStatus().compare("ok") != 0)
   {
-      fprintf(stderr, "session status is: %s; cannot proceed\n", session.getStatus().c_str());
+      fprintf(stderr, "session status is: %s; trying to get session key\n", session.getStatus().c_str());
+      session = api.getMobileSession(cfg.username, cfg.password);
   }
 
   api.setSessionId(session.getId());
