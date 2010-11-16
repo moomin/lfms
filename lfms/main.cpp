@@ -23,34 +23,49 @@ int main(int argc, char* argv[])
   LfmsWsApi api;
   short int retval;
 
-  retval = cfg.readCommandLine(argc, argv);
-
-  api.setAccountInfo(LFMS_API_KEY, LFMS_API_SECRET);
-  api.setServiceInfo(LFMS_API_URL, 8001);
-
-  //help or version was requested or error
-  if (cfg.displayVersion || cfg.displayHelp || (retval != 0))
+  //read command line and display help or version if requested
+  if (!cfg.readCommandLine(argc, argv))
   {
-      return retval;
+      return 1;
+  }
+  else if (cfg.displayHelp)
+  {
+      printf("lfms, usage: lfms [-h] [-v] [-c config_file]\n\
+ -h               print this help\n\
+ -v               print version\n\
+ -c <config_file> use <config_file> as configuration file; default is ~/.config/lfms/config\n");
+  }
+  else if (cfg.displayVersion)
+  {
+      printf("lfms, version %s\n", LFMS_VERSION);
   }
 
   //error reading config file
-  if (0 != cfg.readConfigFile())
+  if (!cfg.readConfigFile())
   {
-    fprintf(stderr, "%s\n", cfg.getErrorMessage().c_str());
-    return 1;
+      fprintf(stderr, "%s\n", cfg.getErrorMessage().c_str());
+      return 1;
   }
   //print debug message
   else
   {
-    printf("config file '%s' read successfully\n", cfg.configFile.c_str());
+      printf("config file '%s' read successfully\n", cfg.configFile.c_str());
   }
+
+  api.setAccountInfo(LFMS_API_KEY, LFMS_API_SECRET);
+  api.setServiceInfo(LFMS_API_URL);
 
   if (!session.restore(cfg.sessionFile))
   {
-      api.getMobileSession(cfg.username, cfg.password);
-      fprintf(stderr, "session error: %s\n", session.getErrorMessage().c_str());
+      session = api.getMobileSession(cfg.username, cfg.password);
   }
+
+  if (session.getStatus().compare("ok") == 0)
+  {
+      fprintf(stderr, "session status is: %s; cannot proceed\n", session.getStatus().c_str());
+  }
+
+  api.setSessionId(session.getId());
 
   switch (cfg.mode)
   {
@@ -62,5 +77,5 @@ int main(int argc, char* argv[])
           break;
   }
 
-  return retval;
+  return 0;
 }

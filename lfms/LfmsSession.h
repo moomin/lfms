@@ -6,16 +6,19 @@
 using namespace std;
 
 class LfmsSession {
-    string name, key;
+    string name, key, status;
     bool isSubscriber;
 
     string error;
 
  public:
+    LfmsSession();
     string getErrorMessage();
+    string getStatus();
+    string getId();
 
-    int restore(const string&);
-    int save(const string&);
+    bool restore(const string&);
+    bool save(const string&);
 };
 
 #endif

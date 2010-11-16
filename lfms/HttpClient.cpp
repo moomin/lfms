@@ -1,5 +1,13 @@
 #include <ctype.h>
+#include <cstdlib>
+#include <string.h>
+#include <cstdio>
 #include "HttpClient.h"
+
+//for sockets
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 bool HttpClient::parseUrl(const string & url)
 {
@@ -18,8 +26,12 @@ bool HttpClient::parseUrl(const string & url)
 
         if (hostname.npos != portStart)
         {
-            port = atoi(hostname.substr(portStart + 1).c_str());
+            port = hostname.substr(portStart + 1);
             hostname.resize(portStart);
+        }
+        else
+        {
+            port = "80";
         }
 
         uri = url.substr(url.find("/", prefixLength + hostname.length()));
@@ -28,13 +40,13 @@ bool HttpClient::parseUrl(const string & url)
     return (hostname.length() != 0);
 }
 
-int HttpClient::request(const string& method, const string& url, paramsMap& params)
+string HttpClient::request(const string& method, const string& url, paramsMap& params)
 {
     paramsMap headers;
     return request(method, url, params, headers);
 }
 
-int HttpClient::request(const string& method, const string& url, paramsMap& params, paramsMap& headers)
+string HttpClient::request(const string& method, const string& url, paramsMap& params, paramsMap& headers)
 {
     string request, headersBody, messageBody;
     string paramsStr;
@@ -43,12 +55,12 @@ int HttpClient::request(const string& method, const string& url, paramsMap& para
     if ((method.compare("GET") != 0) && 
         (method.compare("POST") != 0))
     {
-        return -1;
+        return "";
     }
 
     if (!parseUrl(url))
     {
-        return -2;
+        return "";
     }
 
     //prepare parameters
@@ -78,6 +90,7 @@ int HttpClient::request(const string& method, const string& url, paramsMap& para
 
     //fill required headers
     headers["Host"] = hostname;
+    headers["Accept-Encoding"] = "identity";
 
     //prepare headers body
     for (it = headers.begin(); it != headers.end(); it++)
@@ -90,13 +103,14 @@ int HttpClient::request(const string& method, const string& url, paramsMap& para
     request += headersBody;
     request += "\r\n" + messageBody;
 
-    result = request;
-    return 0;
+    send(request);
+
+    return "200";
 }
 
 string HttpClient::getAnswer()
 {
-    return result;
+    return resultBody;
 }
 
 string HttpClient::escapeUrl(const string& src, bool cgi_value)
@@ -155,4 +169,57 @@ string HttpClient::escapeUrl(const string& src, bool cgi_value)
     free(buff);
 
     return dest;
+}
+
+bool HttpClient::send(const string& data)
+{
+    int status, sock, sentBytes;
+    struct addrinfo *addresses, hints, *p;
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    if ((status = getaddrinfo(hostname.c_str(), port.c_str(),
+                              &hints, &addresses)) != 0
+        )
+    {
+        return false;
+    }
+
+    for (p = addresses; p != 0; p = p->ai_next)
+    {
+        if ((sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+        {
+            continue;
+        }
+
+        if (connect(sock, p->ai_addr, p->ai_addrlen) == -1)
+        {
+            continue;
+        }
+
+        break;
+    }
+    
+    if (p == 0)
+    {
+        return false;
+    }
+
+    sentBytes = ::send(sock, data.c_str(), data.length(), 0);
+
+    if (sentBytes == data.length())
+    {
+        char buffer[1024*64 + 1];
+
+        recv(sock, buffer, 1024*64, 0);
+
+        resultBody = buffer;
+    }
+
+    close(sock);
+    freeaddrinfo(addresses);
+
+    return (sentBytes == data.length());
 }

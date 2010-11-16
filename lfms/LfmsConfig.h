@@ -23,11 +23,11 @@ class LfmsConfig {
     //methods
     LfmsConfig();
     void print();
-    int save(string name);
+    bool save(string name);
     string getErrorMessage();
 
-    int readConfigFile();
-    int readCommandLine(int argc, char *argv[]);
+    bool readConfigFile();
+    bool readCommandLine(int argc, char *argv[]);
 };
 
 #endif

@@ -1,12 +1,11 @@
 #include <string>
 #include "main.h"
+#include "LfmsSession.h"
 
 using namespace std;
 
 class LfmsWsApi {
     string apiKey, apiSecret, apiUrl;
-    int apiPort;
-
     string sessionId;
 
     string getCallSignature(paramsMap&);
@@ -14,8 +13,8 @@ class LfmsWsApi {
 
  public:
     int setAccountInfo(const string&, const string&);
-    int setServiceInfo(const string&, int);
+    int setServiceInfo(const string&);
     int setSessionId(const string&);
 
-    string getMobileSession(const string&, const string&);
+    LfmsSession getMobileSession(const string&, const string&);
 };

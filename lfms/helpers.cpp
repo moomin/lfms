@@ -48,7 +48,7 @@ string get_md5hex(const string & str)
 
     for (position = 0; position < MD5_DIGEST_LENGTH; position++)
     {
-        sprintf(hexCharacter, "%x", md5[position]);
+        sprintf(hexCharacter, "%02x", md5[position]);
         hexString += hexCharacter;
     }
 

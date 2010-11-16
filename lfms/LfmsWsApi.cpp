@@ -11,10 +11,9 @@ int LfmsWsApi::setAccountInfo(const string& key, const string& secret)
     return 0;
 }
 
-int LfmsWsApi::setServiceInfo(const string& url, int port)
+int LfmsWsApi::setServiceInfo(const string& url)
 {
     apiUrl = url;
-    apiPort = port;
 
     return 0;
 }
@@ -56,20 +55,20 @@ string LfmsWsApi::call(const string& method, paramsMap& params)
 
     HttpClient http;
 
-    int httpStatus = http.request("POST", apiUrl, params);
-    if (0 == httpStatus)
+    string httpStatus = http.request("GET", apiUrl, params);
+    if (httpStatus.compare("200") == 0)
     {
         printf("http answer: %s\n", http.getAnswer().c_str());
     }
     else
     {
-        printf("http error: %d", httpStatus);
+        printf("http error: %s", httpStatus.c_str());
     }
 
     return http.getAnswer();
 }
 
-string LfmsWsApi::getMobileSession(const string& username, const string& password)
+LfmsSession LfmsWsApi::getMobileSession(const string& username, const string& password)
 {
     paramsMap params;
 
@@ -77,5 +76,9 @@ string LfmsWsApi::getMobileSession(const string& username, const string& passwor
     //generate token; password should already be an md5 string
     params["authToken"] = get_md5hex(username + password);
 
-    return call("getMobileSession", params);
+    call("getMobileSession", params);
+
+    LfmsSession session;
+
+    return session;
 }

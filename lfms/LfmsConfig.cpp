@@ -21,9 +21,9 @@ void LfmsConfig::print()
 
 }
 
-int LfmsConfig::save(string name)
+bool LfmsConfig::save(string name)
 {
-    return 0;
+    return false;
 }
 
 string LfmsConfig::getErrorMessage()
@@ -31,7 +31,7 @@ string LfmsConfig::getErrorMessage()
     return error;
 }
 
-int LfmsConfig::readConfigFile()
+bool LfmsConfig::readConfigFile()
 {
   string line;
   ifstream file;
@@ -87,10 +87,10 @@ int LfmsConfig::readConfigFile()
       error = "zero-length path to config file";
   }
 
-  return (error.length() > 1);
+  return (error.length() == 0);
 }
 
-int LfmsConfig::readCommandLine(int argc, char *argv[])
+bool LfmsConfig::readCommandLine(int argc, char *argv[])
 {
     int argument;
     
@@ -101,14 +101,9 @@ int LfmsConfig::readCommandLine(int argc, char *argv[])
         switch (argument)
         {
         case 'h':
-            printf("lfms, usage: lfms [-h] [-v] [-c config_file]\n\
- -h               print this help\n\
- -v               print version\n\
- -c <config_file> use <config_file> as configuration file; default is ~/.config/lfms/config\n");
             displayHelp = true;
             break;
         case 'v':
-            printf("lfms, version 0.0.1\n");
             displayVersion = true;
             break;
         case 'c':
@@ -118,5 +113,5 @@ int LfmsConfig::readCommandLine(int argc, char *argv[])
     }
     while (argument != -1);
 
-    return 0;
+    return true;
 }

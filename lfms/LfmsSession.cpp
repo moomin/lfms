@@ -2,12 +2,30 @@
 #include "LfmsSession.h"
 #include "helpers.h"
 
+LfmsSession::LfmsSession()
+{
+    status = "";
+    name = "";
+    key = "";
+    isSubscriber = false;
+}
+
 string LfmsSession::getErrorMessage()
 {
     return error;
 }
 
-int LfmsSession::restore(const string & path)
+string LfmsSession::getStatus()
+{
+    return status;
+}
+
+string LfmsSession::getId()
+{
+    return key;
+}
+
+bool LfmsSession::restore(const string & path)
 {
     ifstream file;
     short int line_number = 0, retval = 0;
@@ -47,5 +65,5 @@ int LfmsSession::restore(const string & path)
         file.close();
     }
 
-    return (error.length() > 0);
+    return (error.length() == 0);
 }
