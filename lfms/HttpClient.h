@@ -8,15 +8,18 @@ class HttpClient {
     string port;
     string uri;
 
-    string resultStatus, resultBody;
+    string responseStatus, responseBody;
 
-    bool send(const string&);
+    int open();
+    bool send(int, const string&);
     bool parseUrl(const string&);
     string escapeUrl(const string& src, bool cgi_value = false);
+    int getResponse(int);
 
  public:
 
-    string request(const string&, const string&, paramsMap&);
-    string request(const string&, const string&, paramsMap&, paramsMap&);
-    string getAnswer();
+    bool sendRequest(const string&, const string&, paramsMap&);
+    bool sendRequest(const string&, const string&, paramsMap&, paramsMap&);
+    string getResponseBody();
+    string getResponseStatus();
 };

@@ -40,13 +40,13 @@ bool HttpClient::parseUrl(const string & url)
     return (hostname.length() != 0);
 }
 
-string HttpClient::request(const string& method, const string& url, paramsMap& params)
+bool HttpClient::sendRequest(const string& method, const string& url, paramsMap& params)
 {
     paramsMap headers;
-    return request(method, url, params, headers);
+    return sendRequest(method, url, params, headers);
 }
 
-string HttpClient::request(const string& method, const string& url, paramsMap& params, paramsMap& headers)
+bool HttpClient::sendRequest(const string& method, const string& url, paramsMap& params, paramsMap& headers)
 {
     string request, headersBody, messageBody;
     string paramsStr;
@@ -55,12 +55,12 @@ string HttpClient::request(const string& method, const string& url, paramsMap& p
     if ((method.compare("GET") != 0) && 
         (method.compare("POST") != 0))
     {
-        return "";
+        return false;
     }
 
     if (!parseUrl(url))
     {
-        return "";
+        return false;
     }
 
     //prepare parameters
@@ -88,9 +88,8 @@ string HttpClient::request(const string& method, const string& url, paramsMap& p
         messageBody = paramsStr;
     }
 
-    //fill required headers
     headers["Host"] = hostname;
-    headers["Accept-Encoding"] = "identity";
+    headers["Connection"] = "Close";
 
     //prepare headers body
     for (it = headers.begin(); it != headers.end(); it++)
@@ -99,18 +98,21 @@ string HttpClient::request(const string& method, const string& url, paramsMap& p
     }
     
     //form request line
-    request = method + " " + uri + " HTTP/1.1\r\n";
+    request = method + " " + uri + " HTTP/1.0\r\n";
     request += headersBody;
     request += "\r\n" + messageBody;
 
-    send(request);
+    printf("request %s\n", request.c_str());
 
-    return "200";
-}
-
-string HttpClient::getAnswer()
-{
-    return resultBody;
+    int sock = open();
+    if (sock && send(sock, request))
+    {
+        return getResponse(sock);
+    }
+    else
+    {
+        return false;
+    }
 }
 
 string HttpClient::escapeUrl(const string& src, bool cgi_value)
@@ -171,18 +173,16 @@ string HttpClient::escapeUrl(const string& src, bool cgi_value)
     return dest;
 }
 
-bool HttpClient::send(const string& data)
+int HttpClient::open()
 {
-    int status, sock, sentBytes;
+    int sock;
     struct addrinfo *addresses, hints, *p;
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
 
-    if ((status = getaddrinfo(hostname.c_str(), port.c_str(),
-                              &hints, &addresses)) != 0
-        )
+    if (getaddrinfo(hostname.c_str(), port.c_str(), &hints, &addresses) != 0)
     {
         return false;
     }
@@ -204,22 +204,71 @@ bool HttpClient::send(const string& data)
     
     if (p == 0)
     {
-        return false;
+        freeaddrinfo(addresses);
+        return 0;
     }
 
-    sentBytes = ::send(sock, data.c_str(), data.length(), 0);
-
-    if (sentBytes == data.length())
-    {
-        char buffer[1024*64 + 1];
-
-        recv(sock, buffer, 1024*64, 0);
-
-        resultBody = buffer;
-    }
-
-    close(sock);
     freeaddrinfo(addresses);
 
+    return sock;
+}
+
+bool HttpClient::send(int sock, const string& data)
+{
+    int sentBytes;
+
+    sentBytes = ::send(sock, data.c_str(), data.length(), 0);
     return (sentBytes == data.length());
+}
+
+int HttpClient::getResponse(int sock)
+{
+    paramsMap headers;
+    string response, line;
+    char buffer[1024*4 + 1];
+    int from = 0, to = 0, n;
+
+    //read socket
+    while(n = ::recv(sock, buffer, 1024*4, 0))
+    {
+        buffer[n] = 0;
+        response += buffer;
+    }
+
+    responseBody = response;
+
+    ::close(sock);
+
+    //get HTTP response status
+    line = response.substr(0, response.find("\r\n"));
+    responseStatus = line.substr(9, line.find(" ", 9) - 9);
+
+    //cycle through headers
+    while (to != response.npos)
+    {
+        to = response.find("\r\n", from);
+
+        line = response.substr(from, to - from);
+
+        if (line.length() == 0)
+        {
+            //get HTTP response body
+            responseBody = response.substr(from + 2);
+            break;
+        }
+
+        from = to + 2;
+    }
+
+    return responseStatus.compare("200") == 0;
+}
+
+string HttpClient::getResponseBody()
+{
+    return responseBody;
+}
+
+string HttpClient::getResponseStatus()
+{
+    return responseStatus;
 }
