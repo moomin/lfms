@@ -44,7 +44,7 @@ string LfmsWsApi::getCallSignature(paramsMap& params)
     return get_md5hex(stringToSign);
 }
 
-string LfmsWsApi::call(const string& method, paramsMap& params)
+string LfmsWsApi::call(const string& method, paramsMap& params, bool isWrite)
 {
     //add parameters required in all calls
     params["api_key"] = apiKey;
@@ -55,17 +55,18 @@ string LfmsWsApi::call(const string& method, paramsMap& params)
 
     HttpClient http;
 
-    string httpStatus = http.request("GET", apiUrl, params);
-    if (httpStatus.compare("200") == 0)
+    if (http.sendRequest(isWrite ? "POST" : "GET", apiUrl, params))
     {
-        printf("http answer: %s\n", http.getAnswer().c_str());
+        printf("http answer: %s\n", http.getResponseBody().c_str());
     }
     else
     {
-        printf("http error: %s", httpStatus.c_str());
+        printf("http error: %s\nhttp body: %s\n",
+               http.getResponseStatus().c_str(),
+               http.getResponseBody().c_str());
     }
 
-    return http.getAnswer();
+    return http.getResponseBody();
 }
 
 LfmsSession LfmsWsApi::getMobileSession(const string& username, const string& password)
@@ -76,7 +77,7 @@ LfmsSession LfmsWsApi::getMobileSession(const string& username, const string& pa
     //generate token; password should already be an md5 string
     params["authToken"] = get_md5hex(username + password);
 
-    call("getMobileSession", params);
+    call("auth.getMobileSession", params);
 
     LfmsSession session;
 

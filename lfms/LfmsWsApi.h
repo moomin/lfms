@@ -9,7 +9,7 @@ class LfmsWsApi {
     string sessionId;
 
     string getCallSignature(paramsMap&);
-    string call(const string&, paramsMap&);
+    string call(const string&, paramsMap&, bool = false);
 
  public:
     int setAccountInfo(const string&, const string&);
