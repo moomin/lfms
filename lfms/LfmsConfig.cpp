@@ -20,6 +20,26 @@ string LfmsConfig::getErrorMessage()
     return error;
 }
 
+bool LfmsConfig::save()
+{
+    ofstream file;
+    
+    file.open(resolve_path(configFile).c_str(), ios_base::trunc);
+
+    if(!file.is_open())
+    {
+        error = "cannot create config file";
+        return false;
+    }
+
+    file << "username=" << endl;
+    file << "password=" << endl;
+    
+    file.close();
+
+    return true;
+}
+
 bool LfmsConfig::readConfigFile()
 {
   string line;
@@ -31,7 +51,7 @@ bool LfmsConfig::readConfigFile()
 
       if (!file.is_open())
       {
-          error = "cannot read config file ''";
+          error = "cannot read config file";
       }
       else
       {
@@ -60,15 +80,15 @@ bool LfmsConfig::readConfigFile()
           }
 
           file.close();
+          return true;
       }
-
   }
   else
   {
       error = "zero-length path to config file";
   }
 
-  return (error.length() == 0);
+  return false;
 }
 
 bool LfmsConfig::readCommandLine(int argc, char *argv[])

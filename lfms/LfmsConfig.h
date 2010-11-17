@@ -19,6 +19,7 @@ class LfmsConfig {
     LfmsConfig();
     std::string getErrorMessage();
 
+    bool save();
     bool readConfigFile();
     bool readCommandLine(int argc, char *argv[]);
 };
