@@ -1,6 +1,7 @@
 #include <cstdio>
 #include "LfmsWsApi.h"
 #include "HttpClient.h"
+#include "XmlParser.h"
 #include "helpers.h"
 
 int LfmsWsApi::setAccountInfo(const string& key, const string& secret)
@@ -58,28 +59,39 @@ string LfmsWsApi::call(const string& method, paramsMap& params, bool isWrite)
     if (http.sendRequest(isWrite ? "POST" : "GET", apiUrl, params))
     {
         printf("http answer: %s\n", http.getResponseBody().c_str());
+        return http.getResponseBody();
     }
     else
     {
         printf("http error: %s\nhttp body: %s\n",
                http.getResponseStatus().c_str(),
                http.getResponseBody().c_str());
+        return "";
     }
-
-    return http.getResponseBody();
 }
 
 LfmsSession LfmsWsApi::getMobileSession(const string& username, const string& password)
 {
     paramsMap params;
+    string response;
+    XmlParser xml;
 
     params["username"] = username;
     //generate token; password should already be an md5 string
     params["authToken"] = get_md5hex(username + password);
 
-    call("auth.getMobileSession", params);
+    response = call("auth.getMobileSession", params);
 
     LfmsSession session;
+
+    if (response.size())
+    { 
+        xml.init(response.c_str());
+        session.set(xml.xpath("/lfm/@status"),
+                    xml.xpath("/lfm/session/name"),
+                    xml.xpath("/lfm/session/key"),
+                    (xml.xpath("/lfm/session/subscriber").compare("0") == 0) ? true : false);
+    }
 
     return session;
 }
