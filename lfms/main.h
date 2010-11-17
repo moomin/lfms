@@ -4,7 +4,7 @@
 #include <map>
 #define LFMS_VERSION "0.1"
 #define LFMS_API_URL "http://ws.audioscrobbler.com/2.0/"
-//#define LFMS_API_URL "http://localhost/~sergey/ws.php"
+//#define LFMS_API_URL "http://localhost/~/ws.php"
 
 #define LFMS_API_KEY "98c7d501c9c52f770dc25a63df6ce7ec"
 #define LFMS_API_SECRET "35431b8abe8861a454ed34286033c148"
