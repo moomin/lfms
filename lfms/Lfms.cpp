@@ -47,7 +47,8 @@ bool Lfms::readConfig(int argc, char* argv[])
     if (!cfg.readConfigFile())
     {
         fprintf(stderr, "%s\n", cfg.getErrorMessage().c_str());
-        return 1;
+        //        cfg.save();
+        return false;
     }
     //print debug message
     else
