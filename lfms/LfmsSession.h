@@ -18,6 +18,7 @@ class LfmsSession {
     string getId();
 
     bool restore(const string&);
+    bool set(const string&, const string&, const string&, bool);
     bool save(const string&);
 };
 

@@ -50,3 +50,13 @@ bool LfmsSession::restore(const string & path)
 
     return (error.length() == 0);
 }
+
+bool LfmsSession::set(const string& status, const string& name, const string& key, bool isSubscriber)
+{
+    LfmsSession::status = status;
+    LfmsSession::name = name;
+    LfmsSession::key = key;
+    LfmsSession::isSubscriber = isSubscriber;
+
+    return true;
+}
