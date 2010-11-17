@@ -107,6 +107,8 @@ bool HttpClient::sendRequest(const string& method, const string& url, paramsMap&
     int sock = open();
     if (sock && send(sock, request))
     {
+        responseStatus.clear();
+        responseBody.clear();
         return getResponse(sock);
     }
     else
