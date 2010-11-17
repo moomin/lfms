@@ -1,6 +1,6 @@
 #include <string>
-#include "main.h"
 #include "LfmsSession.h"
+#include "helpers.h"
 
 using namespace std;
 
@@ -8,8 +8,8 @@ class LfmsWsApi {
     string apiKey, apiSecret, apiUrl;
     string sessionId;
 
-    string getCallSignature(paramsMap&);
-    string call(const string&, paramsMap&, bool = false);
+    string getCallSignature(arrStr&);
+    string call(const string&, arrStr&, bool = false);
 
  public:
     int setAccountInfo(const string&, const string&);

@@ -1,5 +1,5 @@
 #include <string>
-#include "main.h"
+#include "helpers.h"
 
 using namespace std;
 
@@ -18,8 +18,8 @@ class HttpClient {
 
  public:
 
-    bool sendRequest(const string&, const string&, paramsMap&);
-    bool sendRequest(const string&, const string&, paramsMap&, paramsMap&);
+    bool sendRequest(const string&, const string&, arrStr&);
+    bool sendRequest(const string&, const string&, arrStr&, arrStr&);
     string getResponseBody();
     string getResponseStatus();
 };

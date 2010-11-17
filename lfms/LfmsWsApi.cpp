@@ -26,9 +26,9 @@ int LfmsWsApi::setSessionId(const string& id)
     return 0;
 }
 
-string LfmsWsApi::getCallSignature(paramsMap& params)
+string LfmsWsApi::getCallSignature(arrStr& params)
 {
-    paramsMap::iterator it;
+    arrStr::iterator it;
     string stringToSign;
 
     //order all the parameters alphabetically by parameter
@@ -45,7 +45,7 @@ string LfmsWsApi::getCallSignature(paramsMap& params)
     return get_md5hex(stringToSign);
 }
 
-string LfmsWsApi::call(const string& method, paramsMap& params, bool isWrite)
+string LfmsWsApi::call(const string& method, arrStr& params, bool isWrite)
 {
     //add parameters required in all calls
     params["api_key"] = apiKey;
@@ -72,7 +72,7 @@ string LfmsWsApi::call(const string& method, paramsMap& params, bool isWrite)
 
 LfmsSession LfmsWsApi::getMobileSession(const string& username, const string& password)
 {
-    paramsMap params;
+    arrStr params;
     string response;
     XmlParser xml;
 

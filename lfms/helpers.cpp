@@ -7,6 +7,8 @@
 #include <cstdio>
 #include "helpers.h"
 
+using namespace std;
+
 string resolve_path(const string &path)
 {
     struct passwd *pwent;

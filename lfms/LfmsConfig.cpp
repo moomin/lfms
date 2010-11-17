@@ -1,7 +1,8 @@
 #include <fstream>
-#include <cstdlib>
 #include "LfmsConfig.h"
 #include "helpers.h"
+
+using namespace std;
 
 LfmsConfig::LfmsConfig()
 {
@@ -9,21 +10,9 @@ LfmsConfig::LfmsConfig()
     displayVersion = false;
     displayHelp = false;
     configFile =  "~/.config/lfms/config";
-    queueFile = "~/.config/lfms/queue";
     sessionFile = "~/.config/lfms/session";
+    queueFile = "~/.config/lfms/queue";
     mode = 's';
-    host = "localhost";
-    port = 8008;
-}
-
-void LfmsConfig::print()
-{
-
-}
-
-bool LfmsConfig::save(string name)
-{
-    return false;
 }
 
 string LfmsConfig::getErrorMessage()
@@ -67,14 +56,6 @@ bool LfmsConfig::readConfigFile()
                   {
                       password = value;
                   }
-                  else if (param.compare("host") == 0)
-                  {
-                      host = value;
-                  }
-                  else if (param.compare("port") == 0)
-                  {
-                      port = atoi(value.c_str());
-                  }
               }
           }
 
@@ -96,7 +77,7 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
     
     do
     {
-        argument = getopt(argc, argv, "vhc:");
+        argument = getopt(argc, argv, "vhc:m:");
             
         switch (argument)
         {
@@ -108,6 +89,9 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
             break;
         case 'c':
             configFile = optarg;
+            break;
+        case 'm':
+            mode = *optarg;
             break;
         }
     }

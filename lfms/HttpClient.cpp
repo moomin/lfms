@@ -40,17 +40,17 @@ bool HttpClient::parseUrl(const string & url)
     return (hostname.length() != 0);
 }
 
-bool HttpClient::sendRequest(const string& method, const string& url, paramsMap& params)
+bool HttpClient::sendRequest(const string& method, const string& url, arrStr& params)
 {
-    paramsMap headers;
+    arrStr headers;
     return sendRequest(method, url, params, headers);
 }
 
-bool HttpClient::sendRequest(const string& method, const string& url, paramsMap& params, paramsMap& headers)
+bool HttpClient::sendRequest(const string& method, const string& url, arrStr& params, arrStr& headers)
 {
     string request, headersBody, messageBody;
     string paramsStr;
-    paramsMap::iterator it;
+    arrStr::iterator it;
 
     if ((method.compare("GET") != 0) && 
         (method.compare("POST") != 0))
@@ -225,7 +225,7 @@ bool HttpClient::send(int sock, const string& data)
 
 int HttpClient::getResponse(int sock)
 {
-    paramsMap headers;
+    arrStr headers;
     string response, line;
     char buffer[1024*4 + 1];
     int from = 0, to = 0, n;

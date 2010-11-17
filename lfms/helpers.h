@@ -1,7 +1,14 @@
+#ifndef HELPERS_H
+#define HELPERS_H
+
 #include <string>
+#include <map>
 #include <openssl/md5.h>
 
-using namespace std;
+typedef std::map<std::string, std::string> arrStr;
+//typedef std::pair<std::string, std::string> paramsPair;
 
-string resolve_path(const string &);
-string get_md5hex(const string &);
+std::string resolve_path(const std::string &);
+std::string get_md5hex(const std::string &);
+
+#endif
