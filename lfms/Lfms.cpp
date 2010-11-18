@@ -33,10 +33,26 @@ bool Lfms::readConfig(int argc, char* argv[])
     }
     else if (cfg.displayHelp)
     {
-        printf("lfms, usage: lfms [-h] [-v] [-c config_file]\n\
-   -h               print this help\n\
-   -v               print version\n\
-   -c <config_file> use <config_file> as configuration file; default is ~/.config/lfms/config\n");
+        printf("Usage: lfms [options]\n\n\
+Options:\n\
+  -h               print this help\n\
+  -v               print version\n\
+  -q               be quiet. Do not output anything to stdout\n\
+  -c <config_file> use <config_file> as configuration file;\n\
+                   default is ~/.config/lfms/config\n\
+  -a <mode>        which action to perform, where mode is one of:\n\
+                   'n' - update Now Playing information\n\
+                   's' - scrobble a track\n\
+\n\
+  --artist <artist>\n\
+                   The artist name\n\
+  --track  <track> The track name\n\
+  --album  <album> The track name\n\
+  --track-number <number>\n\
+                   The track number of the track on the album.\n\
+  --timestamp <timestamp>\n\
+                   The time the track started playing\n\
+");
     }
     else if (cfg.displayVersion)
     {

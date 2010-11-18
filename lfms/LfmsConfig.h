@@ -1,4 +1,5 @@
 #include <string>
+#include "helpers.h"
 
 #ifndef LFMS_CONFIG_H
 #define LFMS_CONFIG_H
@@ -17,6 +18,8 @@ class LfmsConfig {
     //config file params
     std::string username, password;
     char mode;
+
+    arrStr otherParams; 
 
     //methods
     LfmsConfig();

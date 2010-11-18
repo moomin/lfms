@@ -1,11 +1,12 @@
 #include <string>
+#include <cstring>
+#include <cstdio>
 #include <vector>
 #include <cstdlib>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <pwd.h>
 #include <limits.h>
-#include <cstdio>
 #include <libgen.h>
 #include "helpers.h"
 
@@ -81,11 +82,12 @@ bool make_dir(const char* path, bool recursive)
     else if (recursive)
     {
         //copy path to dir
-        string dir(path);
+        char* dir = strdup(path);
         string dname;
 
         //strip last directory level from dir
-        dname = dirname(dir.c_str());
+        dname = dirname(dir);
+        free(dir);
         //and try to create it
         parentExist = make_dir(dname.c_str(), true);
     }

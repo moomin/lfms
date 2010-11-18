@@ -1,4 +1,5 @@
 #include <fstream>
+#include <getopt.h>
 #include "LfmsConfig.h"
 #include "helpers.h"
 
@@ -106,11 +107,25 @@ bool LfmsConfig::readConfigFile()
 
 bool LfmsConfig::readCommandLine(int argc, char *argv[])
 {
-    int argument;
+    int argument, optIndex = 0;
+
+    static struct option opts[] =
+    {
+        {"verbose", 0, 0, 'v'},
+        {"help", 0, 0, 'h'},
+        {"quiet", 0, 0, 'q'},
+        {"config", 1, 0, 'c'},
+        {"action", 1, 0, 'a'},
+
+        {"artist", 1, 0, 0},
+        {"album", 2, 0, 0},
+        {"track", 1, 0, 0},
+        {0, 0, 0, 0}
+    };
     
     do
     {
-        argument = getopt(argc, argv, "vhc:m:");
+        argument = getopt_long(argc, argv, "vhqc:a:", opts, &optIndex);
             
         switch (argument)
         {
@@ -125,6 +140,9 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
             break;
         case 'm':
             mode = *optarg;
+            break;
+        case 0:
+            otherParams[opts[optIndex].name] = optarg;
             break;
         }
     }
