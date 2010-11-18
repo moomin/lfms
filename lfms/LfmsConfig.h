@@ -9,7 +9,10 @@ class LfmsConfig {
  public:
     //command-line params
     bool displayVersion, displayHelp;
-    std::string configFile, queueFile, sessionFile;
+    std::string configDir;
+    std::string configFile;
+    std::string queueFile;
+    std::string sessionFile;
 
     //config file params
     std::string username, password;

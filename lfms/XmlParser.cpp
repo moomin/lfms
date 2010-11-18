@@ -14,7 +14,6 @@ bool XmlParser::init(const string& buffer)
 
 string XmlParser::xpath(const string& xpath)
 {
-    int i;
     xmlXPathContextPtr ctx;
     xmlXPathObjectPtr result;
     xmlChar* str;

@@ -28,7 +28,6 @@ string LfmsSession::getId()
 bool LfmsSession::restore(const string& path)
 {
     ifstream file;
-    short int line_number = 0, retval = 0;
     string line;
     
     file.open(resolve_path(path).c_str());

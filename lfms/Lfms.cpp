@@ -75,7 +75,6 @@ bool Lfms::initSession(bool forceNew)
     // - existing session is not ok
     if (forceNew || (session.getStatus().compare("ok") != 0))
     {
-        fprintf(stderr, "session status is: %s; trying to get session key\n", session.getStatus().c_str());
         session = api.getMobileSession(cfg.username, cfg.password);
         sessionIsNew = true;
     }
@@ -98,9 +97,24 @@ bool Lfms::action()
             //          retval = submit_track();
             break;
         case 'n':
-            //          retval = now_playing();
+            return nowPlaying();
             break;
     }
 
     return true;
+}
+
+bool Lfms::nowPlaying()
+{
+    if (initSession())
+    {
+        if (!api.updateNowPlaying())
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
 }

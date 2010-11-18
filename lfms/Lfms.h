@@ -22,6 +22,7 @@ class Lfms {
     bool readConfig(int, char*[]);
     bool initSession(bool forceNew = false);
     bool action();
+    bool nowPlaying();
 };
 
 #endif

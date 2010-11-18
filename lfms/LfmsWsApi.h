@@ -17,4 +17,5 @@ class LfmsWsApi {
     int setSessionId(const string&);
 
     LfmsSession getMobileSession(const string&, const string&);
+    bool updateNowPlaying();
 };

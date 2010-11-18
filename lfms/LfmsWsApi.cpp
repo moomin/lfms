@@ -95,3 +95,17 @@ LfmsSession LfmsWsApi::getMobileSession(const string& username, const string& pa
 
     return session;
 }
+
+bool LfmsWsApi::updateNowPlaying()
+{
+    arrStr params;
+    string response;
+
+    params["track"] = "Inner-Self";
+    params["artist"] = "Sepultura";
+    params["sk"] = sessionId;
+
+    response = call("track.updateNowPlaying", params, true);
+
+    return true;
+}

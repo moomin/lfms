@@ -9,10 +9,17 @@ LfmsConfig::LfmsConfig()
     //initialize defaults;
     displayVersion = false;
     displayHelp = false;
-    configFile =  "~/.config/lfms/config";
-    sessionFile = "~/.config/lfms/session";
-    queueFile = "~/.config/lfms/queue";
+    configDir   = "~/.config/lfms";
+    configFile  = configDir + "/config";
+    sessionFile = configDir + "/session";
+    queueFile   = configDir + "/queue";
     mode = 's';
+
+    if (!is_file_exist(resolve_path(configDir).c_str()) &&
+        !make_dir(resolve_path(configDir).c_str(), true))
+    {
+        configDir.clear();
+    }
 }
 
 string LfmsConfig::getErrorMessage()
@@ -52,6 +59,12 @@ bool LfmsConfig::readConfigFile()
       if (!file.is_open())
       {
           error = "cannot read config file";
+          if (configDir.size() &&
+              !is_file_exist(resolve_path(configFile).c_str()))
+          {
+              error = "empty config file was created";
+              save();
+          }
       }
       else
       {

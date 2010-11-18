@@ -1,10 +1,12 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <pwd.h>
 #include <limits.h>
 #include <cstdio>
+#include <libgen.h>
 #include "helpers.h"
 
 using namespace std;
@@ -12,8 +14,8 @@ using namespace std;
 string resolve_path(const string &path)
 {
     struct passwd *pwent;
-    struct stat file_stat;
-    char buf[PATH_MAX*3];
+    //    struct stat file_stat;
+    //char buf[PATH_MAX*3];
     string real_path;
 
     //resolve homedir
@@ -24,13 +26,16 @@ string resolve_path(const string &path)
         real_path.append(path.substr(1));
     }
 
-    realpath(real_path.c_str(), buf);
-    real_path = buf;
-
-    if ((0 != stat(real_path.c_str(), &file_stat)) || !(file_stat.st_mode & S_IFREG))
+    //realpath(real_path.c_str(), buf);
+    //real_path = buf;
+    
+    /*
+    if ((0 != stat(real_path.c_str(), &file_stat)))
+        //|| !(file_stat.st_mode & S_IFREG))
     {
         real_path.clear();
     }
+    */
 
     return real_path;
 }
@@ -55,4 +60,41 @@ string get_md5hex(const string & str)
     }
 
     return hexString;
+}
+
+bool is_file_exist(const char* path)
+{
+    struct stat sb;
+    return !stat(path, &sb);
+}
+
+bool make_dir(const char* path, bool recursive)
+{
+    bool parentExist = true;
+    int n;
+
+    //if file already exist - return true
+    if (is_file_exist(path))
+    {
+        return true;
+    }
+    else if (recursive)
+    {
+        //copy path to dir
+        string dir(path);
+        string dname;
+
+        //strip last directory level from dir
+        dname = dirname(dir.c_str());
+        //and try to create it
+        parentExist = make_dir(dname.c_str(), true);
+    }
+
+    if (parentExist)
+    {
+        n = mkdir(path, 0777);
+        return (n == 0);
+    }
+
+    return false;
 }

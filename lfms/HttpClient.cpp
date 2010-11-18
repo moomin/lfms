@@ -85,6 +85,9 @@ bool HttpClient::sendRequest(const string& method, const string& url, arrStr& pa
         char lengthChar[32];
         sprintf(lengthChar, "%d", paramsStr.length());
         headers["Content-Length"] = lengthChar;
+        //this header is important in POST request
+        //without it API will return error with code 3
+        headers["Content-Type"] = "application/x-www-form-urlencoded";
         messageBody = paramsStr;
     }
 
@@ -217,7 +220,7 @@ int HttpClient::open()
 
 bool HttpClient::send(int sock, const string& data)
 {
-    int sentBytes;
+    size_t sentBytes;
 
     sentBytes = ::send(sock, data.c_str(), data.length(), 0);
     return (sentBytes == data.length());
@@ -228,10 +231,11 @@ int HttpClient::getResponse(int sock)
     arrStr headers;
     string response, line;
     char buffer[1024*4 + 1];
-    int from = 0, to = 0, n;
+    int n;
+    size_t from = 0, to = 0;
 
     //read socket
-    while(n = ::recv(sock, buffer, 1024*4, 0))
+    while((n = ::recv(sock, buffer, 1024*4, 0)))
     {
         buffer[n] = 0;
         response += buffer;
