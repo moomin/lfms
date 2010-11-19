@@ -125,7 +125,7 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
     
     do
     {
-        argument = getopt_long(argc, argv, "vhqc:a:", opts, &optIndex);
+        argument = getopt_long(argc, argv, "", opts, &optIndex);
             
         switch (argument)
         {
@@ -138,11 +138,20 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
         case 'c':
             configFile = optarg;
             break;
-        case 'm':
-            mode = *optarg;
+        case 'q':
+            quiet = true;
             break;
+        case 'a':
         case 0:
-            otherParams[opts[optIndex].name] = optarg;
+            if (((opts[optIndex].has_arg == 2) && !optarg) ||
+                (opts[optIndex].has_arg == 0))
+            {
+                otherParams[opts[optIndex].name] = "";
+            }
+            else
+            {
+                otherParams[opts[optIndex].name] = optarg;
+            }
             break;
         }
     }

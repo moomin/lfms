@@ -1,6 +1,7 @@
 #include <cstdio>
 
 #include "Lfms.h"
+#include "LfmsTrack.h"
 #include "helpers.h"
 
 bool Lfms::init(int argc, char* argv[])
@@ -120,8 +121,21 @@ bool Lfms::action()
     return true;
 }
 
+bool Lfms::fillTrackInfo(LfmsTrack& track)
+{
+
+    return true;
+}
+
 bool Lfms::nowPlaying()
 {
+    LfmsTrack track;
+
+    if (fillTrackInfo(track))
+    {
+        return true;
+    }
+
     if (initSession())
     {
         if (!api.updateNowPlaying())
