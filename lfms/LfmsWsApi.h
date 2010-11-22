@@ -1,5 +1,6 @@
 #include <string>
 #include "LfmsSession.h"
+#include "LfmsTrack.h"
 #include "helpers.h"
 
 using namespace std;
@@ -17,5 +18,5 @@ class LfmsWsApi {
     int setSessionId(const string&);
 
     LfmsSession getMobileSession(const string&, const string&);
-    bool updateNowPlaying();
+    bool updateNowPlaying(LfmsTrack&);
 };
