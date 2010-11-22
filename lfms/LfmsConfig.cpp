@@ -109,6 +109,9 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
 {
     int argument, optIndex = 0;
 
+    //@TODO Do something with this.
+    //There should be more elegant handling for options
+
     static struct option opts[] =
     {
         {"verbose", 0, 0, 'v'},
@@ -125,7 +128,7 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
     
     do
     {
-        argument = getopt_long(argc, argv, "", opts, &optIndex);
+        argument = getopt_long(argc, argv, "vhqc:a:", opts, &optIndex);
             
         switch (argument)
         {
@@ -142,6 +145,8 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
             quiet = true;
             break;
         case 'a':
+            mode = *optarg;
+            break;
         case 0:
             if (((opts[optIndex].has_arg == 2) && !optarg) ||
                 (opts[optIndex].has_arg == 0))
