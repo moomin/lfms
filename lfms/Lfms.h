@@ -11,6 +11,7 @@
 #include "LfmsSession.h"
 #include "LfmsWsApi.h"
 #include "LfmsTrack.h"
+#include "helpers.h"
 
 class Lfms {
     LfmsConfig cfg;
@@ -24,7 +25,7 @@ class Lfms {
     bool initSession(bool forceNew = false);
     bool action();
     bool nowPlaying();
-    bool fillTrackInfo(LfmsTrack& track);
+    bool fillTrackInfo(LfmsTrack& track, arrStr&);
 };
 
 #endif

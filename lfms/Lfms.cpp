@@ -1,4 +1,6 @@
 #include <cstdio>
+#include <cstdlib>
+#include <time.h>
 
 #include "Lfms.h"
 #include "LfmsTrack.h"
@@ -121,9 +123,48 @@ bool Lfms::action()
     return true;
 }
 
-bool Lfms::fillTrackInfo(LfmsTrack& track)
+bool Lfms::fillTrackInfo(LfmsTrack& track, arrStr& info)
 {
+    arrStr::iterator it;
 
+    it = info.find("artist");
+
+    if (it == info.end())
+    {
+        return false;
+    }
+
+    track.artist = (*it).second;
+
+    it = info.find("track");
+
+    if (it == info.end())
+    {
+        return false;
+    }
+
+    track.track = (*it).second;
+
+    //non-mandatory track info
+    it = info.find("album");
+
+    if (it != info.end())
+    {
+        track.album = (*it).second;
+    }
+
+    //timestamp
+    it = info.find("timestamp");
+
+    if (it == info.end())
+    {
+        track.timestamp = time(0);
+    }
+    else
+    {
+        track.timestamp = atoi((*it).second.c_str());
+    }
+    
     return true;
 }
 
@@ -131,14 +172,14 @@ bool Lfms::nowPlaying()
 {
     LfmsTrack track;
 
-    if (fillTrackInfo(track))
+    if (!fillTrackInfo(track, cfg.otherParams))
     {
-        return true;
+        return false;
     }
 
     if (initSession())
     {
-        if (!api.updateNowPlaying())
+        if (!api.updateNowPlaying(track))
         {
             return false;
         }
