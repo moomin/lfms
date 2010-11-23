@@ -4,7 +4,7 @@ CFLAGS_LIBXML=`xml2-config --cflags`
 all: lfms
 
 lfms: main.o helpers.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o Lfms.o
-	g++ ${CFLAGS} -o lfms main.o helpers.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o Lfms.o -lcrypt -lssl `xml2-config --libs`
+	g++ ${CFLAGS} -o lfms main.o helpers.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o Lfms.o -lcrypto `xml2-config --libs`
 
 main.o: main.cpp
 	g++ ${CFLAGS} -c main.cpp
