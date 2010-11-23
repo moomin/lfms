@@ -83,7 +83,7 @@ bool HttpClient::sendRequest(const string& method, const string& url, arrStr& pa
     else
     {
         char lengthChar[32];
-        sprintf(lengthChar, "%d", paramsStr.length());
+        sprintf(lengthChar, "%d", (int)paramsStr.length());
         headers["Content-Length"] = lengthChar;
         //this header is important in POST request
         //without it API will return error with code 3
