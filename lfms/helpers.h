@@ -3,7 +3,6 @@
 
 #include <string>
 #include <map>
-#include <openssl/md5.h>
 
 typedef std::map<std::string, std::string> arrStr;
 //typedef std::pair<std::string, std::string> paramsPair;

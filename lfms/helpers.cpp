@@ -8,6 +8,7 @@
 #include <pwd.h>
 #include <limits.h>
 #include <libgen.h>
+#include <openssl/md5.h>
 #include "helpers.h"
 
 using namespace std;
