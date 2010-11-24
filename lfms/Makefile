@@ -1,4 +1,4 @@
-CFLAGS="-Wall"
+CFLAGS=-Wall -O2
 CFLAGS_LIBXML=`xml2-config --cflags`
 
 all: lfms
