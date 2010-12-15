@@ -7,6 +7,8 @@
 class LfmsTrack {
 
  public:
+    LfmsTrack();
+
     std::string track;
     int timestamp;
     std::string artist;
