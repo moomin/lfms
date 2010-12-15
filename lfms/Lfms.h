@@ -25,6 +25,7 @@ class Lfms {
     bool initSession(bool forceNew = false);
     bool action();
     bool nowPlaying();
+    bool scrobble();
     bool fillTrackInfo(LfmsTrack& track, arrStr&);
 };
 

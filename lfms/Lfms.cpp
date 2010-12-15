@@ -14,6 +14,7 @@ bool Lfms::init(int argc, char* argv[])
     //cannot read config
     if (!readConfig(argc, argv))
     {
+        fprintf(stderr, "cannot read config file: ~/.config/lfms/config\n");
         return false;
     }
 
@@ -21,6 +22,7 @@ bool Lfms::init(int argc, char* argv[])
     if ((cfg.username.size() == 0) ||
         (cfg.password.size() != 32))
     {
+        fprintf(stderr, "username/password empty. Please add it to ~/.config/lfms/config\n");
         return false;
     }
 
@@ -110,10 +112,10 @@ bool Lfms::initSession(bool forceNew)
 
 bool Lfms::action()
 {
-    switch (cfg.mode)
+    switch (cfg.action)
     {
         case 's':
-            //          retval = submit_track();
+            scrobble();
             break;
         case 'n':
             return nowPlaying();
@@ -127,35 +129,57 @@ bool Lfms::fillTrackInfo(LfmsTrack& track, arrStr& info)
 {
     arrStr::iterator it;
 
-    it = info.find("artist");
-
-    if (it == info.end())
-    {
-        return false;
-    }
-
-    track.artist = (*it).second;
-
     it = info.find("track");
-
-    if (it == info.end())
+    if (it != info.end())
     {
-        return false;
+        track.track = (*it).second;
     }
 
-    track.track = (*it).second;
+    it = info.find("artist");
+    if (it != info.end())
+    {
+        track.artist = (*it).second;
+    }
 
     //non-mandatory track info
     it = info.find("album");
-
     if (it != info.end())
     {
         track.album = (*it).second;
     }
 
+    it = info.find("album-artist");
+    if (it != info.end())
+    {
+        track.albumArtist = (*it).second;
+    }
+
+    it = info.find("streamid");
+    if (it != info.end())
+    {
+        track.streamId = (*it).second;
+    }
+
+    it = info.find("track-number");
+    if (it != info.end())
+    {
+        track.trackNumber = atoi((*it).second.c_str());
+    }
+
+    it = info.find("mbid");
+    if (it != info.end())
+    {
+        track.mbid = (*it).second;
+    }
+
+    it = info.find("duration");
+    if (it != info.end())
+    {
+        track.duration = atoi((*it).second.c_str());
+    }
+
     //timestamp
     it = info.find("timestamp");
-
     if (it == info.end())
     {
         track.timestamp = time(0);
@@ -165,6 +189,12 @@ bool Lfms::fillTrackInfo(LfmsTrack& track, arrStr& info)
         track.timestamp = atoi((*it).second.c_str());
     }
     
+    if (!track.track.length() ||
+	!track.artist.length())
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -174,6 +204,8 @@ bool Lfms::nowPlaying()
 
     if (!fillTrackInfo(track, cfg.otherParams))
     {
+        //here we should display some message
+        fprintf(stderr, "something went wrong\n");
         return false;
     }
 
@@ -181,6 +213,32 @@ bool Lfms::nowPlaying()
     {
         if (!api.updateNowPlaying(track))
         {
+	    //here we should display some message
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Lfms::scrobble()
+{
+    LfmsTrack track;
+
+    if (!fillTrackInfo(track, cfg.otherParams))
+    {
+        //here we should display some message
+        fprintf(stderr, "something went wrong\n");
+        return false;
+    }
+
+    if (initSession())
+    {
+        if (!api.scrobble(track))
+        {
+	    //here we should display some message
             return false;
         }
 
