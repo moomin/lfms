@@ -17,7 +17,7 @@ class LfmsConfig {
 
     //config file params
     std::string username, password;
-    char mode;
+    char action;
 
     arrStr otherParams; 
 

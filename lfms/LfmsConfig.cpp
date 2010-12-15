@@ -1,4 +1,5 @@
 #include <fstream>
+#include <string>
 #include <getopt.h>
 #include "LfmsConfig.h"
 #include "helpers.h"
@@ -14,7 +15,7 @@ LfmsConfig::LfmsConfig()
     configFile  = configDir + "/config";
     sessionFile = configDir + "/session";
     queueFile   = configDir + "/queue";
-    mode = 's';
+    action = 's';
 
     if (!is_file_exist(resolve_path(configDir).c_str()) &&
         !make_dir(resolve_path(configDir).c_str(), true))
@@ -105,14 +106,32 @@ bool LfmsConfig::readConfigFile()
   return false;
 }
 
+string getGetoptString(short int numberOfOptions, struct option *options)
+{
+    string getoptString;
+
+    for (int i = 0; i < numberOfOptions; i++)
+    {
+	if (options[i].val != 0)
+	{
+	    getoptString += options[i].val;
+	}
+
+	if ((options[i].val != 0) &&
+	    (options[i].has_arg == 1))
+	{
+	    getoptString += ':';
+	}
+    }
+
+    return getoptString;
+}
+
 bool LfmsConfig::readCommandLine(int argc, char *argv[])
 {
     int argument, optIndex = 0;
 
-    //@TODO Do something with this.
-    //There should be more elegant handling for options
-
-    static struct option opts[] =
+    struct option opts[] =
     {
         {"verbose", 0, 0, 'v'},
         {"help", 0, 0, 'h'},
@@ -120,15 +139,24 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
         {"config", 1, 0, 'c'},
         {"action", 1, 0, 'a'},
 
+        {"timestamp", 1, 0, 0},
+        {"streamid", 1, 0, 0},
+
+	{"track", 1, 0, 0},
         {"artist", 1, 0, 0},
-        {"album", 2, 0, 0},
-        {"track", 1, 0, 0},
+        {"album", 1, 0, 0},
+        {"album-artist", 1, 0, 0},
+        {"track-number", 1, 0, 0},
+        {"mbid", 1, 0, 0},
+        {"duration", 1, 0, 0},
         {0, 0, 0, 0}
     };
     
+    string getoptString = getGetoptString(sizeof opts / sizeof(struct option), opts);
+
     do
     {
-        argument = getopt_long(argc, argv, "vhqc:a:", opts, &optIndex);
+        argument = getopt_long(argc, argv, getoptString.c_str(), opts, &optIndex);
             
         switch (argument)
         {
@@ -145,7 +173,7 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
             quiet = true;
             break;
         case 'a':
-            mode = *optarg;
+            action = *optarg;
             break;
         case 0:
             if (((opts[optIndex].has_arg == 2) && !optarg) ||
@@ -164,3 +192,4 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
 
     return true;
 }
+
