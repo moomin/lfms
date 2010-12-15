@@ -1,0 +1,5 @@
+- implement logging (many targets, different levels)
+- implement queue
+- implement locking
+- add Autotuls or CMake build automation
+- follow freedesktop.org's "Desktop base directory" spec (http://www.freedesktop.org/wiki/Specifications/basedir-spec)
