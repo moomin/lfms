@@ -3,11 +3,11 @@ CFLAGS_LIBXML=`xml2-config --cflags`
 
 all: lfms
 
-lfms: main.o helpers.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o Lfms.o
-	g++ ${CFLAGS} -o lfms main.o helpers.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o Lfms.o -lcrypto `xml2-config --libs`
+lfms: main.o helpers.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o
+	g++ ${CFLAGS} -o lfms main.o helpers.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o -lcrypto `xml2-config --libs`
 
 main.o: main.cpp
-	g++ ${CFLAGS} -c main.cpp
+	g++ ${CFLAGS} ${CFLAGS_LIBXML} -c main.cpp
 
 helpers.o: helpers.cpp
 	g++ ${CFLAGS} -c helpers.cpp
@@ -27,8 +27,11 @@ LfmsSession.o: LfmsSession.cpp
 LfmsWsApi.o: LfmsWsApi.cpp
 	g++ ${CFLAGS} ${CFLAGS_LIBXML} -c LfmsWsApi.cpp
 
+LfmsTrack.o: LfmsTrack.cpp
+	g++ ${CFLAGS} -c LfmsTrack.cpp
+
 Lfms.o: Lfms.cpp
-	g++ ${CFLAGS} -c Lfms.cpp
+	g++ ${CFLAGS} ${CFLAGS_LIBXML} -c Lfms.cpp
 
 clean:
-	rm -f main.o helpers.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o Lfms.o lfms
+	rm -f main.o helpers.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o lfms
