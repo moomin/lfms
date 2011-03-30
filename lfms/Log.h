@@ -1,14 +1,20 @@
 #include <string>
 #include <cstdarg>
+#include <fstream>
+
+#ifndef LFMS_LOG_H
+#define LFMS_LOG_H
 
 class Log {
-    ofstream file;
+    std::ofstream file;
     short int level;
     Log *observer;
 
   public:
-    init(string, char);
-    log(short int, string, ...);
-    setLevel(short int);
-    setObserver(Log*);
-}
+    bool init(std::string, char);
+    bool log(short int, std::string, ...);
+    void setLevel(short int);
+    bool setObserver(Log*);
+};
+
+#endif

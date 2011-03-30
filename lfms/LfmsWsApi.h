@@ -16,10 +16,11 @@ class LfmsWsApi {
     bool call(const string&, arrStr&, bool = false);
 
  public:
-    int setAccountInfo(const string&, const string&);
-    int setServiceInfo(const string&);
-    int setSessionId(const string&);
+    bool setAccountInfo(const string&, const string&);
+    bool setServiceInfo(const string&);
+    bool setSessionId(const string&);
     int getErrorCode();
+    string getErrorMessage();
 
     LfmsSession getMobileSession(const string&, const string&);
     bool updateNowPlaying(LfmsTrack&);

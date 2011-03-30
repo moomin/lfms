@@ -6,12 +6,14 @@
 
 int LfmsWsApi::getErrorCode()
 {
-  if (response.length()
+    //dummy
+    return 0;
 }
 
 string LfmsWsApi::getErrorMessage()
 {
-    return 
+    //dummy
+    return "dummy error message";
 }
 
 bool LfmsWsApi::setAccountInfo(const string& key, const string& secret)
@@ -78,7 +80,7 @@ bool LfmsWsApi::call(const string& method, arrStr& params, bool isWrite)
     if (http.sendRequest(isWrite ? "POST" : "GET", apiUrl, params))
     {
         printf("http answer: %s\n", http.getResponseBody().c_str());
-	response.init(http.getResponseBody().c_str());
+        response.init(http.getResponseBody().c_str());
         return (response.xpath("/lfm/@status").compare("ok") == 0) ? true : false;
     }
     else
@@ -87,7 +89,7 @@ bool LfmsWsApi::call(const string& method, arrStr& params, bool isWrite)
                http.getResponseStatus().c_str(),
                http.getResponseBody().c_str());
 
-	response.init(http.getResponseBody().c_str());
+        response.init(http.getResponseBody().c_str());
         return false;
     }
 }
