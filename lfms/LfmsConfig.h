@@ -11,9 +11,14 @@ class LfmsConfig {
     //command-line params
     bool displayVersion, displayHelp, quiet;
     std::string configDir;
+    std::string dataDir;
+
     std::string configFile;
     std::string queueFile;
     std::string sessionFile;
+
+    std::string logFile;
+    std::string lockFile;
 
     //config file params
     std::string username, password;

@@ -1,28 +1,39 @@
 #include <cstdio>
+#include <queue>
 #include "LfmsWsApi.h"
 #include "HttpClient.h"
 #include "helpers.h"
 
-int LfmsWsApi::setAccountInfo(const string& key, const string& secret)
+int LfmsWsApi::getErrorCode()
+{
+  if (response.length()
+}
+
+string LfmsWsApi::getErrorMessage()
+{
+    return 
+}
+
+bool LfmsWsApi::setAccountInfo(const string& key, const string& secret)
 {
     apiKey = key;
     apiSecret = secret;
 
-    return 0;
+    return true;
 }
 
-int LfmsWsApi::setServiceInfo(const string& url)
+bool LfmsWsApi::setServiceInfo(const string& url)
 {
     apiUrl = url;
 
-    return 0;
+    return true;
 }
 
-int LfmsWsApi::setSessionId(const string& id)
+bool LfmsWsApi::setSessionId(const string& id)
 {
     sessionId = id;
 
-    return 0;
+    return true;
 }
 
 string LfmsWsApi::getCallSignature(arrStr& params)
@@ -37,15 +48,13 @@ string LfmsWsApi::getCallSignature(arrStr& params)
     {
         if ((*it).second.length())
         {
-	    stringToSign += (*it).first + (*it).second;
-	    it++;
-	}
-	else
-	{
-	  printf("ERASING something\n");
-	    //TODO: check if it is ok to iterate through map after erase
-      	    params.erase(it++);
-	}
+            stringToSign += (*it).first + (*it).second;
+            it++;
+        }
+        else
+        {
+            params.erase(it++);
+        }
     }
 
     //append secret to this string
@@ -133,7 +142,7 @@ bool LfmsWsApi::updateNowPlaying(LfmsTrack& track)
     return call("track.updateNowPlaying", params, true);
 }
 
-bool LfmsWsApi::scrobble(LfmsTrack& track)
+bool LfmsWsApi::scrobble(const LfmsTrack& track)
 {
     arrStr params;
     string response;
@@ -168,4 +177,9 @@ bool LfmsWsApi::scrobble(LfmsTrack& track)
     params["sk"] = sessionId;
 
     return call("track.scrobble", params, true);
+}
+
+bool LfmsWsApi::scrobble(queue<LfmsTrack>& tracks)
+{
+    return false;
 }

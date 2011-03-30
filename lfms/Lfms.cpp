@@ -26,6 +26,8 @@ bool Lfms::init(int argc, char* argv[])
         return false;
     }
 
+    //initalize logs (console and file)
+
     return true;
 }
 

@@ -8,19 +8,42 @@ using namespace std;
 
 LfmsConfig::LfmsConfig()
 {
+    configDir = getenv("XDG_CONFIG_HOME");
+    dataDir   = getenv("XDG_DATA_HOME");
+
+    if (!configDir.length())
+    {
+        configDir = "~/.config";
+    }
+
+    if (!dataDir.length())
+    {
+        dataDir = "~/.local/share";
+    }
+
+    configDir += "/lfms";
+    dataDir   += "/lfms";
+
     //initialize defaults;
     displayVersion = false;
     displayHelp = false;
-    configDir   = "~/.config/lfms";
     configFile  = configDir + "/config";
-    sessionFile = configDir + "/session";
-    queueFile   = configDir + "/queue";
+    sessionFile = dataDir + "/session";
+    queueFile   = dataDir + "/queue";
+    logFile     = dataDir + "/log";
+    lockFile    = dataDir + "/lock";
     action = 's';
 
     if (!is_file_exist(resolve_path(configDir).c_str()) &&
         !make_dir(resolve_path(configDir).c_str(), true))
     {
         configDir.clear();
+    }
+
+    if (!is_file_exist(resolve_path(dataDir).c_str()) &&
+        !make_dir(resolve_path(dataDir).c_str(), true))
+    {
+        dataDir.clear();
     }
 }
 
