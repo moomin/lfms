@@ -1,5 +1,16 @@
+
 - implement logging (many targets, different levels)
 - implement queue
 - implement locking
-- add Autotuls or CMake build automation
 - follow freedesktop.org's "Desktop base directory" spec (http://www.freedesktop.org/wiki/Specifications/basedir-spec)
+- adopt CMake or create autotools set of scripts to make build system portable (now it is hardcoded for Mac Os X)
+
+notes:
+a practical reason for automake (automatic generation of Makefile) is that on
+different platforms, extension of shared library files may differ. For example
+in Linux it is "so" and on Mac it is "dylib" and if your program creates shared
+libraries you should use a variable specifying an extension for your librarie's
+filename because linker will search for files with this specific extension. Of
+course you can use a variable in your Makefile but this will look like a mess,
+and now I can imagine there are more reasons to use automake. But.. this is
+ridiculous, it's syntax is weird, tooooo old-school.

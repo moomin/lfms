@@ -1,40 +1,19 @@
-CFLAGS=-Wall -O2
+CFLAGS=-Wall -O2 -L.
 CFLAGS_LIBXML=`xml2-config --cflags`
+LDFLAGS_LIBXML=`xml2-config --libs`
 
 all: lfms
 
-lfms: main.o helpers.o Log.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o
-	g++ ${CFLAGS} -o lfms main.o helpers.o Log.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o -lcrypto `xml2-config --libs`
+lfms: liblfms.dylib main.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o
+	g++ ${CFLAGS} -o lfms main.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o -llfms
 
-main.o: main.cpp
-	g++ ${CFLAGS} ${CFLAGS_LIBXML} -c main.cpp
+liblfms.dylib: helpers.cpp Log.cpp HttpClient.cpp XmlParser.cpp
+	g++ -shared ${CFLAGS} ${CFLAGS_LIBXML} ${LDFLAGS_LIBXML} -lcrypto -o liblfms.dylib \
+	helpers.cpp Log.cpp HttpClient.cpp XmlParser.cpp
 
-helpers.o: helpers.cpp
-	g++ ${CFLAGS} -c helpers.cpp
-
-Log.o: Log.cpp
-	g++ ${CFLAGS} -c Log.cpp
-
-XmlParser.o: XmlParser.cpp
-	g++ ${CFLAGS} ${CFLAGS_LIBXML} -c XmlParser.cpp
-
-HttpClient.o: HttpClient.cpp
-	g++ ${CFLAGS} -c HttpClient.cpp
-
-LfmsConfig.o: LfmsConfig.cpp
-	g++ ${CFLAGS} -c LfmsConfig.cpp
-
-LfmsSession.o: LfmsSession.cpp
-	g++ ${CFLAGS} -c LfmsSession.cpp
-
-LfmsWsApi.o: LfmsWsApi.cpp
-	g++ ${CFLAGS} ${CFLAGS_LIBXML} -c LfmsWsApi.cpp
-
-LfmsTrack.o: LfmsTrack.cpp
-	g++ ${CFLAGS} -c LfmsTrack.cpp
-
-Lfms.o: Lfms.cpp
-	g++ ${CFLAGS} ${CFLAGS_LIBXML} -c Lfms.cpp
+main.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o: main.cpp LfmsConfig.cpp LfmsSession.cpp LfmsWsApi.cpp LfmsTrack.cpp Lfms.cpp
+	g++ ${CFLAGS} ${CFLAGS_LIBXML} -c \
+	main.cpp LfmsConfig.cpp LfmsSession.cpp LfmsWsApi.cpp LfmsTrack.cpp Lfms.cpp
 
 clean:
-	rm -f main.o helpers.o Log.o XmlParser.o HttpClient.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o lfms
+	rm -f liblfms.dylib main.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o lfms
