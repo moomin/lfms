@@ -1,6 +1,7 @@
 #include <string>
 #include <cstdarg>
 #include <fstream>
+#include <syslog.h>
 
 #ifndef LFMS_LOG_H
 #define LFMS_LOG_H
@@ -12,7 +13,7 @@ class Log {
 
   public:
     bool init(std::string, char);
-    bool log(short int, std::string, ...);
+    bool log(short int, std::string);
     void setLevel(short int);
     bool setObserver(Log*);
 };

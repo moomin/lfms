@@ -5,16 +5,23 @@
 #include "Lfms.h"
 #include "LfmsTrack.h"
 #include "helpers.h"
+#include "Log.h"
 
 bool Lfms::init(int argc, char* argv[])
 {
     api.setAccountInfo(LFMS_API_KEY, LFMS_API_SECRET);
     api.setServiceInfo(LFMS_API_URL);
+ 
+    //initalize logs (console and file)
+    Log log;
+
+    log.init(cfg.logFile, 'a');
+    log.log(LOG_INFO, "starting");
 
     //cannot read config
     if (!readConfig(argc, argv))
     {
-        fprintf(stderr, "cannot read config file: ~/.config/lfms/config\n");
+        log.log(LOG_ERR, "cannot read config file: ~/.config/lfms/config\n");
         return false;
     }
 
@@ -25,8 +32,6 @@ bool Lfms::init(int argc, char* argv[])
         fprintf(stderr, "username/password empty. Please add it to ~/.config/lfms/config\n");
         return false;
     }
-
-    //initalize logs (console and file)
 
     return true;
 }
