@@ -8,18 +8,13 @@ using namespace std;
 
 LfmsConfig::LfmsConfig()
 {
-    configDir = getenv("XDG_CONFIG_HOME");
-    dataDir   = getenv("XDG_DATA_HOME");
+    char *envData;
 
-    if (!configDir.length())
-    {
-        configDir = "~/.config";
-    }
+    envData = getenv("XDG_CONFIG_HOME");
+    configDir = envData != NULL ? envData : "~/.config";
 
-    if (!dataDir.length())
-    {
-        dataDir = "~/.local/share";
-    }
+    envData = getenv("XDG_DATA_HOME");
+    dataDir   = envData != NULL ? envData : "~/.local/share";
 
     configDir += "/lfms";
     dataDir   += "/lfms";

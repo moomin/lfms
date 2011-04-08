@@ -87,6 +87,7 @@ bool make_dir(const char* path, bool recursive)
         string dname;
 
         //strip last directory level from dir
+        //WARNING: probably assignment will segfault if dirname returns null pointer
         dname = dirname(dir);
         free(dir);
         //and try to create it

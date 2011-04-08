@@ -18,10 +18,9 @@ class Lfms {
     LfmsSession session;
     LfmsWsApi api;
 
-    bool readConfig();
+    bool readConfig(int, char*[]);
  public:
     bool init(int, char*[]);
-    bool readConfig(int, char*[]);
     bool initSession(bool forceNew = false);
     bool action();
     bool nowPlaying();
