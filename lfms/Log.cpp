@@ -2,7 +2,7 @@
 #include <cstdarg>
 #include "helpers.h"
 #include "Log.h"
-
+//something
 using namespace std;
 
 bool Log::init(string file, char mode)
