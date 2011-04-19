@@ -21,12 +21,9 @@ bool Lfms::init(int argc, char* argv[])
         return false;
     }
 
+    //tune logging according to config
     log.console = cfg.quiet ? false : true;
     log.level = cfg.debug ? LOG_DEBUG : LOG_INFO;
-
-    log.log(LOG_INFO, "regular message, arg1: %s, arg2: %d", "some str", 332);
-    log.log(LOG_DEBUG, "DEBUG message, arg1: %s, arg2: %d", "some str", 332);
-    log.log(LOG_ERR, "error message, arg1: %s, arg2: %d", "some err", 404);
 
     log.log(LOG_DEBUG, "config file '%s' read successfully", cfg.configFile.c_str());
 
@@ -34,7 +31,7 @@ bool Lfms::init(int argc, char* argv[])
     if ((cfg.username.size() == 0) ||
         (cfg.password.size() != 32))
     {
-        log.log(LOG_ERR, "username/password empty. Please add it to ~/.config/lfms/config\n");
+        log.log(LOG_ERR, "username/password empty. Please add it to ~/.config/lfms/config");
         return false;
     }
 
@@ -198,6 +195,7 @@ bool Lfms::fillTrackInfo(LfmsTrack& track, arrStr& info)
     if (!track.track.length() ||
 	!track.artist.length())
     {
+        log.log(LOG_ERR, "Empty Track/Artist name");
         return false;
     }
 
@@ -211,7 +209,7 @@ bool Lfms::nowPlaying()
     if (!fillTrackInfo(track, cfg.otherParams))
     {
         //here we should display some message
-        log.log(LOG_ERR, "something went wrong");
+        log.log(LOG_ERR, "Cannot submit Now Playing info");
         return false;
     }
 
@@ -236,7 +234,7 @@ bool Lfms::scrobble()
     if (!fillTrackInfo(track, cfg.otherParams))
     {
         //here we should display some message
-        log.log(LOG_ERR, "something went wrong\n");
+        log.log(LOG_ERR, "Cannot scrobble track");
         return false;
     }
 
@@ -244,7 +242,7 @@ bool Lfms::scrobble()
     {
         if (!api.scrobble(track))
         {
-	    //here we should display some message
+            //here we should display some message
             return false;
         }
 
