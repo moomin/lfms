@@ -211,7 +211,7 @@ bool Lfms::nowPlaying()
     if (!fillTrackInfo(track, cfg.otherParams))
     {
         //here we should display some message
-        log.log(LOG_ERR, "something went wrong\n");
+        log.log(LOG_ERR, "something went wrong");
         return false;
     }
 

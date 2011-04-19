@@ -20,4 +20,4 @@ main.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o: main.cpp LfmsC
 	main.cpp LfmsConfig.cpp LfmsSession.cpp LfmsWsApi.cpp LfmsTrack.cpp Lfms.cpp
 
 clean:
-	rm -f liblfms.dylib helpers.o Log.o HttpClient.o XmlParser.o main.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o lfms
+	rm -f helpers.o Log.o HttpClient.o XmlParser.o main.o LfmsConfig.o LfmsSession.o LfmsWsApi.o LfmsTrack.o Lfms.o lfms
