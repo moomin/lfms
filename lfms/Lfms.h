@@ -11,11 +11,13 @@
 #include "LfmsSession.h"
 #include "LfmsWsApi.h"
 #include "LfmsTrack.h"
+#include "Log.h"
 #include "helpers.h"
 
 class Lfms {
     LfmsConfig cfg;
     LfmsSession session;
+    Log log;
     LfmsWsApi api;
 
     bool readConfig(int, char*[]);

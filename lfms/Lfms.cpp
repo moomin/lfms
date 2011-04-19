@@ -5,7 +5,6 @@
 #include "Lfms.h"
 #include "LfmsTrack.h"
 #include "helpers.h"
-#include "Log.h"
 
 bool Lfms::init(int argc, char* argv[])
 {
@@ -13,23 +12,29 @@ bool Lfms::init(int argc, char* argv[])
     api.setServiceInfo(LFMS_API_URL);
  
     //initalize logs (console and file)
-    Log log;
-
     log.init(cfg.logFile, 'a');
-    log.log(LOG_INFO, "starting");
 
     //cannot read config
     if (!readConfig(argc, argv))
     {
-        log.log(LOG_ERR, "cannot read config file: ~/.config/lfms/config\n");
+        log.log(LOG_ERR, "%s", cfg.getErrorMessage().c_str());
         return false;
     }
+
+    log.console = cfg.quiet ? false : true;
+    log.level = cfg.debug ? LOG_DEBUG : LOG_INFO;
+
+    log.log(LOG_INFO, "regular message, arg1: %s, arg2: %d", "some str", 332);
+    log.log(LOG_DEBUG, "DEBUG message, arg1: %s, arg2: %d", "some str", 332);
+    log.log(LOG_ERR, "error message, arg1: %s, arg2: %d", "some err", 404);
+
+    log.log(LOG_DEBUG, "config file '%s' read successfully", cfg.configFile.c_str());
 
     //username or password is missing
     if ((cfg.username.size() == 0) ||
         (cfg.password.size() != 32))
     {
-        fprintf(stderr, "username/password empty. Please add it to ~/.config/lfms/config\n");
+        log.log(LOG_ERR, "username/password empty. Please add it to ~/.config/lfms/config\n");
         return false;
     }
 
@@ -50,6 +55,7 @@ Options:\n\
   -h               print this help\n\
   -v               print version\n\
   -q               be quiet. Do not output anything to stdout\n\
+  -d               enable debug output\n\
   -c <config_file> use <config_file> as configuration file;\n\
                    default is ~/.config/lfms/config\n\
   -a <mode>        which action to perform, where mode is one of:\n\
@@ -74,14 +80,7 @@ Options:\n\
     //error reading config file
     if (!cfg.readConfigFile())
     {
-        fprintf(stderr, "%s\n", cfg.getErrorMessage().c_str());
-        //        cfg.save();
         return false;
-    }
-    //print debug message
-    else
-    {
-        printf("config file '%s' read successfully\n", cfg.configFile.c_str());
     }
 
     return true;
@@ -212,7 +211,7 @@ bool Lfms::nowPlaying()
     if (!fillTrackInfo(track, cfg.otherParams))
     {
         //here we should display some message
-        fprintf(stderr, "something went wrong\n");
+        log.log(LOG_ERR, "something went wrong\n");
         return false;
     }
 
@@ -237,7 +236,7 @@ bool Lfms::scrobble()
     if (!fillTrackInfo(track, cfg.otherParams))
     {
         //here we should display some message
-        fprintf(stderr, "something went wrong\n");
+        log.log(LOG_ERR, "something went wrong\n");
         return false;
     }
 
