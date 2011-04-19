@@ -10,9 +10,6 @@ class Log {
     std::ofstream file;
     Log *observer;
 
-  protected:
-    bool time(char *);
-
   public:
     bool console;
     short int level;

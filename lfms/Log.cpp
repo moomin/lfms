@@ -9,7 +9,6 @@ using namespace std;
 
 /*
  * @TODO
- * - eliminate time() moving the code to log()
  * - add literals for levels to appear in actual messages
  * - add support for many observers
  * - loong-time todo: add support for different log backends
@@ -29,18 +28,6 @@ bool Log::init(string file, char mode)
     return Log::file.is_open();
 }
 
-bool Log::time(char * timebuf)
-{
-  time_t rawtime;
-  struct tm *time;
-
-  std::time(&rawtime);
-  time = gmtime(&rawtime);
-
-  strftime(timebuf, 255, "[%F %T %z] ", time);
-  return true;
-}
-
 void Log::notifyObservers(short int level, string format, va_list ap)
 {
     if (observer)
@@ -52,9 +39,6 @@ void Log::notifyObservers(short int level, string format, va_list ap)
 bool Log::log(short int level, string format, va_list ap)
 {
     char *msg = NULL;
-    char timebuf[256];
-
-    time(timebuf);
 
     if (level > Log::level)
     {
@@ -62,8 +46,18 @@ bool Log::log(short int level, string format, va_list ap)
         return true;
     }
 
+
     if(vasprintf(&msg, format.c_str(), ap) >= 0)
     {
+        time_t rawtime;
+        struct tm *time;
+        char timebuf[256];
+
+        std::time(&rawtime);
+        time = gmtime(&rawtime);
+
+        strftime(timebuf, 255, "[%F %T %Z] ", time);
+
         //log to file
         file << timebuf << msg << "\n";
 
