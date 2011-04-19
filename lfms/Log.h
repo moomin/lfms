@@ -8,14 +8,22 @@
 
 class Log {
     std::ofstream file;
-    short int level;
     Log *observer;
 
+  protected:
+    bool time(char *);
+
   public:
+    bool console;
+    short int level;
+
+    Log();
     bool init(std::string, char);
-    bool log(short int, std::string);
-    void setLevel(short int);
+    void notifyObservers(short int, std::string, va_list);
+    bool log(short int, std::string, va_list);
+    bool log(short int, std::string, ...);
     bool setObserver(Log*);
+    ~Log();
 };
 
 #endif
