@@ -22,6 +22,7 @@ LfmsConfig::LfmsConfig()
     //initialize defaults;
     displayVersion = false;
     displayHelp = false;
+    debug = false;
     configFile  = configDir + "/config";
     sessionFile = dataDir + "/session";
     queueFile   = dataDir + "/queue";
@@ -154,13 +155,14 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
         {"verbose", 0, 0, 'v'},
         {"help", 0, 0, 'h'},
         {"quiet", 0, 0, 'q'},
+        {"debug", 0, 0, 'd'},
         {"config", 1, 0, 'c'},
         {"action", 1, 0, 'a'},
 
         {"timestamp", 1, 0, 0},
         {"streamid", 1, 0, 0},
 
-	{"track", 1, 0, 0},
+        {"track", 1, 0, 0},
         {"artist", 1, 0, 0},
         {"album", 1, 0, 0},
         {"album-artist", 1, 0, 0},
@@ -189,6 +191,9 @@ bool LfmsConfig::readCommandLine(int argc, char *argv[])
             break;
         case 'q':
             quiet = true;
+            break;
+        case 'd':
+            debug = true;
             break;
         case 'a':
             action = *optarg;

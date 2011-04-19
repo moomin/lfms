@@ -9,7 +9,7 @@ class LfmsConfig {
 
  public:
     //command-line params
-    bool displayVersion, displayHelp, quiet;
+    bool displayVersion, displayHelp, quiet, debug;
     std::string configDir;
     std::string dataDir;
 
