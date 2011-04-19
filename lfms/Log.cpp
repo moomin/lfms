@@ -7,6 +7,14 @@
 
 using namespace std;
 
+/*
+ * @TODO
+ * - eliminate time() moving the code to log()
+ * - add literals for levels to appear in actual messages
+ * - add support for many observers
+ * - loong-time todo: add support for different log backends
+ */
+
 Log::Log()
 {
   console = false;
