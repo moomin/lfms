@@ -1,6 +1,9 @@
 #include <string>
 #include "helpers.h"
 
+#ifndef HTTP_CLIENT_H
+#define HTTP_CLIENT_H
+
 using namespace std;
 
 class HttpClient {
@@ -8,18 +11,24 @@ class HttpClient {
     string port;
     string uri;
 
-    string responseStatus, responseBody;
+    int bodyStartPosition;
+    string request, response;
+    string statusCode;
 
     int open();
     bool send(int, const string&);
     bool parseUrl(const string&);
     string escapeUrl(const string& src, bool cgi_value = false);
-    int getResponse(int);
+    int setResponse(int);
 
  public:
 
     bool sendRequest(const string&, const string&, arrStr&);
     bool sendRequest(const string&, const string&, arrStr&, arrStr&);
+    string getRequest();
+    string getResponse();
     string getResponseBody();
-    string getResponseStatus();
+    string getStatusCode();
 };
+
+#endif

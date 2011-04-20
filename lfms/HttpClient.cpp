@@ -48,9 +48,15 @@ bool HttpClient::sendRequest(const string& method, const string& url, arrStr& pa
 
 bool HttpClient::sendRequest(const string& method, const string& url, arrStr& params, arrStr& headers)
 {
-    string request, headersBody, messageBody;
+    string headersBody, messageBody;
     string paramsStr;
     arrStr::iterator it;
+
+    //cleanup everything
+    bodyStartPosition = 0;
+    request.clear();
+    response.clear();
+    statusCode.clear();
 
     if ((method.compare("GET") != 0) && 
         (method.compare("POST") != 0))
@@ -105,19 +111,17 @@ bool HttpClient::sendRequest(const string& method, const string& url, arrStr& pa
     request += headersBody;
     request += "\r\n" + messageBody;
 
-    printf("request %s\n", request.c_str());
-
     int sock = open();
     if (sock && send(sock, request))
     {
-        responseStatus.clear();
-        responseBody.clear();
-        return getResponse(sock);
+        setResponse(sock);
     }
     else
     {
         return false;
     }
+
+    return true;
 }
 
 string HttpClient::escapeUrl(const string& src, bool cgi_value)
@@ -226,10 +230,10 @@ bool HttpClient::send(int sock, const string& data)
     return (sentBytes == data.length());
 }
 
-int HttpClient::getResponse(int sock)
+int HttpClient::setResponse(int sock)
 {
     arrStr headers;
-    string response, line;
+    string line;
     char buffer[1024*4 + 1];
     int n;
     size_t from = 0, to = 0;
@@ -241,13 +245,11 @@ int HttpClient::getResponse(int sock)
         response += buffer;
     }
 
-    responseBody = response;
-
     ::close(sock);
 
     //get HTTP response status
     line = response.substr(0, response.find("\r\n"));
-    responseStatus = line.substr(9, line.find(" ", 9) - 9);
+    statusCode = line.substr(9, line.find(" ", 9) - 9);
 
     //cycle through headers
     while (to != response.npos)
@@ -259,22 +261,32 @@ int HttpClient::getResponse(int sock)
         if (line.length() == 0)
         {
             //get HTTP response body
-            responseBody = response.substr(from + 2);
+            bodyStartPosition = from + 2;
             break;
         }
 
         from = to + 2;
     }
 
-    return responseStatus.compare("200") == 0;
+    return true;
+}
+
+string HttpClient::getRequest()
+{
+    return request;
+}
+
+string HttpClient::getResponse()
+{
+    return response;
 }
 
 string HttpClient::getResponseBody()
 {
-    return responseBody;
+    return response.substr(bodyStartPosition);
 }
 
-string HttpClient::getResponseStatus()
+string HttpClient::getStatusCode()
 {
-    return responseStatus;
+    return statusCode;
 }
