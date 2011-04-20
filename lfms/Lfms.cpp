@@ -118,11 +118,13 @@ bool Lfms::action()
     switch (cfg.action)
     {
         case 's':
-            scrobble();
+            return scrobble();
             break;
         case 'n':
             return nowPlaying();
             break;
+        default:
+            return false;
     }
 
     return true;
@@ -217,7 +219,7 @@ bool Lfms::nowPlaying()
     {
         if (!api.updateNowPlaying(track))
         {
-	    //here we should display some message
+            log.log(LOG_ERR, "Error submitting Now Playing information: %s", api.getLastCallInfo().c_str());
             return false;
         }
 
@@ -233,7 +235,6 @@ bool Lfms::scrobble()
 
     if (!fillTrackInfo(track, cfg.otherParams))
     {
-        //here we should display some message
         log.log(LOG_ERR, "Cannot scrobble track");
         return false;
     }
@@ -242,7 +243,7 @@ bool Lfms::scrobble()
     {
         if (!api.scrobble(track))
         {
-            //here we should display some message
+            log.log(LOG_ERR, "Error scrobbling the track: %s", api.getLastCallInfo().c_str());
             return false;
         }
 
