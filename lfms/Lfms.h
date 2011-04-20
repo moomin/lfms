@@ -18,12 +18,16 @@ class Lfms {
     LfmsConfig cfg;
     LfmsSession session;
     Log log;
+    Log socketLog;
     LfmsWsApi api;
 
     bool readConfig(int, char*[]);
  public:
     bool init(int, char*[]);
     bool initSession(bool forceNew = false);
+    bool submitQueue();
+    void logApiError(const LfmsTrack&, const char*);
+    void logApiSuccess(const LfmsTrack&, const char*);
     bool action();
     bool nowPlaying();
     bool scrobble();

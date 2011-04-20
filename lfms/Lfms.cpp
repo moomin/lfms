@@ -13,6 +13,7 @@ bool Lfms::init(int argc, char* argv[])
  
     //initalize logs (console and file)
     log.init(cfg.logFile, 'a');
+    socketLog.init(cfg.socketLog, 'a');
 
     //cannot read config
     if (!readConfig(argc, argv))
@@ -24,6 +25,7 @@ bool Lfms::init(int argc, char* argv[])
     //tune logging according to config
     log.console = cfg.quiet ? false : true;
     log.level = cfg.debug ? LOG_DEBUG : LOG_INFO;
+    socketLog.level = cfg.debug ? LOG_DEBUG : LOG_INFO;
 
     log.log(LOG_DEBUG, "config file '%s' read successfully", cfg.configFile.c_str());
 
@@ -118,16 +120,16 @@ bool Lfms::action()
     switch (cfg.action)
     {
         case 's':
-            return scrobble();
-            break;
+          return scrobble();
+          break;
         case 'n':
-            return nowPlaying();
-            break;
+          return nowPlaying();
+          break;
         default:
-            return false;
+          return false;
     }
 
-    return true;
+    return false;;
 }
 
 bool Lfms::fillTrackInfo(LfmsTrack& track, arrStr& info)
@@ -207,22 +209,17 @@ bool Lfms::fillTrackInfo(LfmsTrack& track, arrStr& info)
 bool Lfms::nowPlaying()
 {
     LfmsTrack track;
+    const char* operation = "Now playing";
 
-    if (!fillTrackInfo(track, cfg.otherParams))
-    {
-        //here we should display some message
-        log.log(LOG_ERR, "Cannot submit Now Playing info");
-        return false;
-    }
-
-    if (initSession())
+    if (fillTrackInfo(track, cfg.otherParams) && initSession())
     {
         if (!api.updateNowPlaying(track))
         {
-            log.log(LOG_ERR, "Error submitting Now Playing information: %s", api.getLastCallInfo().c_str());
+            logApiError(track, operation);
             return false;
         }
 
+        logApiSuccess(track, operation);
         return true;
     }
 
@@ -232,23 +229,51 @@ bool Lfms::nowPlaying()
 bool Lfms::scrobble()
 {
     LfmsTrack track;
+    const char* operation = "Scrobbling";
 
-    if (!fillTrackInfo(track, cfg.otherParams))
-    {
-        log.log(LOG_ERR, "Cannot scrobble track");
-        return false;
-    }
-
-    if (initSession())
+    if (fillTrackInfo(track, cfg.otherParams) && initSession())
     {
         if (!api.scrobble(track))
         {
-            log.log(LOG_ERR, "Error scrobbling the track: %s", api.getLastCallInfo().c_str());
+            logApiError(track, operation);
             return false;
         }
 
+        logApiSuccess(track, operation);
         return true;
     }
 
     return false;
+}
+
+bool Lfms::submitQueue()
+{
+    return true;
+}
+
+void Lfms::logApiError(const LfmsTrack &track, const char* operation)
+{
+    log.log(LOG_ERR, "%s failed. Artist: \"%s\", Track: \"%s\". %s",
+            operation,
+            track.artist.c_str(),
+            track.track.c_str(),
+            api.getLastCallInfo().c_str());
+
+    socketLog.log(LOG_ERR, "sent:\n%s", api.getRequest().c_str());
+    socketLog.log(LOG_ERR, "rcvd:\n%s", api.getResponse().c_str());
+
+    return;
+}
+
+void Lfms::logApiSuccess(const LfmsTrack &track, const char* operation)
+{
+    log.log(LOG_ERR, "%s successfull. Artist: \"%s\", Track: \"%s\"",
+            operation,
+            track.artist.c_str(),
+            track.track.c_str());
+
+    socketLog.log(LOG_DEBUG, "sent:\n%s", api.getRequest().c_str());
+    socketLog.log(LOG_DEBUG, "rcvd:\n%s", api.getResponse().c_str());
+
+    return;
 }
