@@ -5,6 +5,7 @@
 #include <map>
 
 typedef std::map<std::string, std::string> arrStr;
+typedef std::map<short int, std::string> arrIndex;
 //typedef std::pair<std::string, std::string> paramsPair;
 
 std::string resolve_path(const std::string &);
