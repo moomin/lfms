@@ -18,6 +18,7 @@ class LfmsConfig {
     std::string sessionFile;
 
     std::string logFile;
+    std::string socketLog;
     std::string lockFile;
 
     //config file params

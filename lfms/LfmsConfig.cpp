@@ -27,6 +27,7 @@ LfmsConfig::LfmsConfig()
     sessionFile = dataDir + "/session";
     queueFile   = dataDir + "/queue";
     logFile     = dataDir + "/log";
+    socketLog   = dataDir + "/socket.log";
     lockFile    = dataDir + "/lock";
     action = 's';
 
