@@ -9,6 +9,7 @@
 class Log {
     std::ofstream file;
     Log *observer;
+    arrIndex levelName;
 
   public:
     bool console;
