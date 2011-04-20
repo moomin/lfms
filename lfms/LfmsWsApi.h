@@ -3,6 +3,7 @@
 #include "XmlParser.h"
 #include "LfmsSession.h"
 #include "LfmsTrack.h"
+#include "HttpClient.h"
 #include "helpers.h"
 
 using namespace std;
@@ -11,16 +12,21 @@ class LfmsWsApi {
     string apiKey, apiSecret, apiUrl;
     XmlParser response;
     string sessionId;
+    string lastCallInfo;
+    HttpClient http;
 
     string getCallSignature(arrStr&);
     bool call(const string&, arrStr&, bool = false);
+    void setLastCallInfo();
+    void setLastCallInfo(const string&);
 
  public:
     bool setAccountInfo(const string&, const string&);
     bool setServiceInfo(const string&);
     bool setSessionId(const string&);
-    int getErrorCode();
-    string getErrorMessage();
+    string getLastCallInfo();
+    string getRequest();
+    string getResponse();
 
     LfmsSession getMobileSession(const string&, const string&);
     bool updateNowPlaying(LfmsTrack&);

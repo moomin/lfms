@@ -1,19 +1,66 @@
 #include <cstdio>
 #include <queue>
 #include "LfmsWsApi.h"
-#include "HttpClient.h"
 #include "helpers.h"
 
-int LfmsWsApi::getErrorCode()
+string LfmsWsApi::getRequest()
 {
-    //dummy
-    return 0;
+    return http.getRequest();
 }
 
-string LfmsWsApi::getErrorMessage()
+string LfmsWsApi::getResponse()
 {
-    //dummy
-    return "dummy error message";
+    return http.getResponse();
+}
+
+string LfmsWsApi::getLastCallInfo()
+{
+    return lastCallInfo;
+}
+
+void LfmsWsApi::setLastCallInfo(const string& msg)
+{
+    lastCallInfo = msg;
+    return;
+}
+void LfmsWsApi::setLastCallInfo()
+{
+    string xpath;
+
+    lastCallInfo = "HTTP " + http.getStatusCode();
+
+    if (!response.isReady())
+    {
+        lastCallInfo += "; Error parsing response";
+
+        return;
+    }
+
+    response.xpath("/lfm/@status");
+
+    if (xpath.empty())
+    {
+        lastCallInfo += "; Invalid response";
+
+        return;
+    }
+    else if (xpath.compare("ok") == 0)
+    {
+        lastCallInfo += "; Call succeed";
+
+        return;
+    }
+    else if (xpath.compare("failed") == 0)
+    {
+        lastCallInfo += "; Call failed";
+        xpath = response.xpath("/lfm/error/@code");
+        lastCallInfo += " (" + xpath + ")";
+        xpath = response.xpath("/lfm/error");
+        lastCallInfo += " " + xpath;
+
+        return;
+    }
+
 }
 
 bool LfmsWsApi::setAccountInfo(const string& key, const string& secret)
@@ -62,7 +109,6 @@ string LfmsWsApi::getCallSignature(arrStr& params)
     //append secret to this string
     stringToSign += apiSecret;
 
-    printf("string to sign: %s\n", stringToSign.c_str());
     return get_md5hex(stringToSign);
 }
 
@@ -75,21 +121,24 @@ bool LfmsWsApi::call(const string& method, arrStr& params, bool isWrite)
     //add signature
     params["api_sig"] = getCallSignature(params);
 
-    HttpClient http;
-
     if (http.sendRequest(isWrite ? "POST" : "GET", apiUrl, params))
     {
-        printf("http answer: %s\n", http.getResponseBody().c_str());
         response.init(http.getResponseBody().c_str());
-        return (response.xpath("/lfm/@status").compare("ok") == 0) ? true : false;
+
+        setLastCallInfo();
+
+        if (response.xpath("/lfm/@status").compare("ok") == 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     else
     {
-        printf("http error: %s\nhttp body: %s\n",
-               http.getResponseStatus().c_str(),
-               http.getResponseBody().c_str());
-
-        response.init(http.getResponseBody().c_str());
+        setLastCallInfo("Network error");
         return false;
     }
 }
