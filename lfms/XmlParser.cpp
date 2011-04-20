@@ -1,7 +1,25 @@
 #include <string>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
+#include <libxml/xmlerror.h>
 #include "XmlParser.h"
+
+void DummyXmlErrorHandler(void * ctx, const char * msg, ...)
+{
+    return;
+}
+
+XmlParser::XmlParser()
+{
+    isXmlParsed = false;
+    xmlGenericErrorFunc handler = (xmlGenericErrorFunc)DummyXmlErrorHandler;
+    initGenericErrorDefaultFunc(&handler);
+}
+
+bool XmlParser::isReady()
+{
+    return isXmlParsed;
+}
 
 bool XmlParser::init(const string& buffer)
 {
@@ -9,7 +27,8 @@ bool XmlParser::init(const string& buffer)
 
     doc = xmlParseMemory(buf, buffer.size());
 
-    return true;
+    isXmlParsed = (doc != NULL ? true: false);
+    return isXmlParsed;
 }
 
 string XmlParser::xpath(const string& xpath)

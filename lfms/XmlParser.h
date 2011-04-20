@@ -8,9 +8,12 @@ using namespace std;
 
 class XmlParser {
     const char* buf;
+    bool isXmlParsed;
     xmlDocPtr doc;
 
  public:
+    XmlParser();
+    bool isReady();
     bool init(const string&);
     string xpath(const string&);
 };
