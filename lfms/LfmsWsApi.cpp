@@ -18,6 +18,11 @@ string LfmsWsApi::getLastCallInfo()
     return lastCallInfo;
 }
 
+int LfmsWsApi::getErrorCode()
+{
+    return errorCode;
+}
+
 void LfmsWsApi::setLastCallInfo(const string& msg)
 {
     lastCallInfo = msg;
@@ -54,6 +59,8 @@ void LfmsWsApi::setLastCallInfo()
     {
         lastCallInfo += "; Call failed";
         xpath = response.xpath("/lfm/error/@code");
+        errorCode = atoi(xpath.c_str());
+
         lastCallInfo += " (" + xpath + ")";
         xpath = response.xpath("/lfm/error");
         lastCallInfo += " " + xpath;

@@ -12,6 +12,7 @@ class LfmsWsApi {
     string apiKey, apiSecret, apiUrl;
     XmlParser response;
     string sessionId;
+    int errorCode;
     string lastCallInfo;
     HttpClient http;
 
@@ -24,6 +25,7 @@ class LfmsWsApi {
     bool setAccountInfo(const string&, const string&);
     bool setServiceInfo(const string&);
     bool setSessionId(const string&);
+    int getErrorCode();
     string getLastCallInfo();
     string getRequest();
     string getResponse();
