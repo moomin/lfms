@@ -22,14 +22,15 @@ LfmsConfig::LfmsConfig()
     //initialize defaults;
     displayVersion = false;
     displayHelp = false;
-    debug = false;
+    //debug is enabled during development
+    debug = true;
     configFile  = configDir + "/config";
     sessionFile = dataDir + "/session";
     queueFile   = dataDir + "/queue";
     logFile     = dataDir + "/log";
     socketLog   = dataDir + "/socket.log";
     lockFile    = dataDir + "/lock";
-    action = 's';
+    action = 0;
 
     if (!is_file_exist(resolve_path(configDir).c_str()) &&
         !make_dir(resolve_path(configDir).c_str(), true))
