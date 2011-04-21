@@ -47,7 +47,7 @@ bool Lfms::readConfig(int argc, char* argv[])
     {
         return false;
     }
-    else if (cfg.displayHelp)
+    else if (cfg.displayHelp || cfg.action == 0)
     {
         printf("Usage: lfms [options]\n\n\
 Options:\n\
@@ -107,29 +107,19 @@ bool Lfms::initSession(bool forceNew)
 
     if (sessionIsNew)
     {
+        log.log(LOG_DEBUG, "Saving session info");
         session.save(cfg.sessionFile);
     }
 
     api.setSessionId(session.getId());
 
-    return (session.getStatus().compare("ok") == 0);
-}
-
-bool Lfms::action()
-{
-    switch (cfg.action)
+    if (session.getStatus().compare("ok") != 0)
     {
-        case 's':
-          return scrobble();
-          break;
-        case 'n':
-          return nowPlaying();
-          break;
-        default:
-          return false;
+        log.log(LOG_ERR, "Error initializing session");
+        return false;
     }
 
-    return false;;
+    return true;
 }
 
 bool Lfms::fillTrackInfo(LfmsTrack& track, arrStr& info)
@@ -206,44 +196,91 @@ bool Lfms::fillTrackInfo(LfmsTrack& track, arrStr& info)
     return true;
 }
 
-bool Lfms::nowPlaying()
+bool Lfms::action()
+{
+    switch (cfg.action)
+    {
+        case 's':
+          return scrobble();
+          break;
+        case 'n':
+          return nowPlaying();
+          break;
+        default:
+          return false;
+    }
+
+    return false;;
+}
+
+bool Lfms::nowPlaying(short int tryNumber)
 {
     LfmsTrack track;
     const char* operation = "Now playing";
 
-    if (fillTrackInfo(track, cfg.otherParams) && initSession())
+    if (!fillTrackInfo(track, cfg.otherParams) || !initSession())
     {
-        if (!api.updateNowPlaying(track))
-        {
-            logApiError(track, operation);
-            return false;
-        }
+        return false;
+    }
 
+    if (api.updateNowPlaying(track))
+    {
         logApiSuccess(track, operation);
         return true;
+    }
+
+    logApiError(track, operation);
+
+    int errorCode = api.getErrorCode();
+
+    if ((errorCode == 9) && (tryNumber < 3))
+    {
+        log.log(LOG_INFO, "Retrying, attempt %d", tryNumber);
+        return nowPlaying(tryNumber + 1);
     }
 
     return false;
 }
 
-bool Lfms::scrobble()
+bool Lfms::scrobble(short int tryNumber)
 {
     LfmsTrack track;
     const char* operation = "Scrobbling";
 
-    if (fillTrackInfo(track, cfg.otherParams) && initSession())
+    if (!fillTrackInfo(track, cfg.otherParams) || !initSession())
     {
-        if (!api.scrobble(track))
-        {
-            logApiError(track, operation);
-            return false;
-        }
+        return false;
+    }
 
+    if (api.scrobble(track))
+    {
         logApiSuccess(track, operation);
         return true;
     }
 
-    return false;
+    logApiError(track, operation);
+
+    int errorCode = api.getErrorCode();
+
+    if ((errorCode == 9) && (tryNumber < 4))
+    {
+        log.log(LOG_INFO, "Retrying, attempt %d", tryNumber);
+        return scrobble(tryNumber + 1);
+    }
+    else if (errorCode == 9)
+    {
+        return false;
+    }
+    else if ((errorCode == 11) || (errorCode == 16))
+    {
+        //queue the request
+        return false;
+    }
+    else
+    {
+        //just fail
+        return false;
+    }
 }
 
 bool Lfms::submitQueue()
@@ -267,7 +304,7 @@ void Lfms::logApiError(const LfmsTrack &track, const char* operation)
 
 void Lfms::logApiSuccess(const LfmsTrack &track, const char* operation)
 {
-    log.log(LOG_ERR, "%s successfull. Artist: \"%s\", Track: \"%s\"",
+    log.log(LOG_INFO, "%s successfull. Artist: \"%s\", Track: \"%s\"",
             operation,
             track.artist.c_str(),
             track.track.c_str());

@@ -29,8 +29,8 @@ class Lfms {
     void logApiError(const LfmsTrack&, const char*);
     void logApiSuccess(const LfmsTrack&, const char*);
     bool action();
-    bool nowPlaying();
-    bool scrobble();
+    bool nowPlaying(short int tryNumber = 1);
+    bool scrobble(short int tryNumber = 1);
     bool fillTrackInfo(LfmsTrack& track, arrStr&);
 };
 
