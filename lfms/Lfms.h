@@ -7,6 +7,8 @@
 #define LFMS_API_KEY "98c7d501c9c52f770dc25a63df6ce7ec"
 #define LFMS_API_SECRET "35431b8abe8861a454ed34286033c148"
 
+#define LFMS_MAX_SCROBBLE_TRIES 4
+
 #include "LfmsConfig.h"
 #include "LfmsSession.h"
 #include "LfmsWsApi.h"
@@ -32,6 +34,7 @@ class Lfms {
     bool nowPlaying(short int tryNumber = 1);
     bool scrobble(short int tryNumber = 1);
     bool fillTrackInfo(LfmsTrack& track, arrStr&);
+    bool putTrackIntoQueue(LfmsTrack& track);
 };
 
 #endif

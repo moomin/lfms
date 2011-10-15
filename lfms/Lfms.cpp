@@ -262,20 +262,24 @@ bool Lfms::scrobble(short int tryNumber)
 
     int errorCode = api.getErrorCode();
 
-    if ((errorCode == 9) && (tryNumber < 4))
+    if ((errorCode == 9) && (tryNumber < LFMS_MAX_SCROBBLE_TRIES))
     {
         log.log(LOG_INFO, "Retrying, attempt %d", tryNumber);
         return scrobble(tryNumber + 1);
     }
+    //TODO: put an error code descripiton here
     else if (errorCode == 9)
     {
         return false;
     }
+    //TODO: put an error code descripiton here
     else if ((errorCode == 11) || (errorCode == 16))
     {
         //queue the request
+        putTrackIntoQueue(track);
         return false;
     }
+    //TODO: add a comment about possible cause
     else
     {
         //just fail
