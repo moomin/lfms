@@ -3,7 +3,7 @@
 #include "XmlParser.h"
 #include "LfmsSession.h"
 #include "LfmsTrack.h"
-#include "HttpClient.h"
+#include "Curl.h"
 #include "helpers.h"
 
 using namespace std;
@@ -14,7 +14,7 @@ class LfmsWsApi {
     string sessionId;
     int errorCode;
     string lastCallInfo;
-    HttpClient http;
+    Curl curl;
 
     string getCallSignature(arrStr&);
     bool call(const string&, arrStr&, bool = false);
