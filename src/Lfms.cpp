@@ -276,7 +276,7 @@ bool Lfms::scrobble(short int tryNumber)
     else if ((errorCode == 11) || (errorCode == 16))
     {
         //queue the request
-        putTrackIntoQueue(track);
+        queueTheTrack(track);
         return false;
     }
     //TODO: add a comment about possible cause
@@ -285,6 +285,11 @@ bool Lfms::scrobble(short int tryNumber)
         //just fail
         return false;
     }
+}
+
+bool Lfms::queueTheTrack(LfmsTrack &track)
+{
+    return true;
 }
 
 bool Lfms::submitQueue()

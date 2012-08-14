@@ -1,5 +1,6 @@
 *.o
 *.dylib
 *.so
+*.swp
 *~
 lfms

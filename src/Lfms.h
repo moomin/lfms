@@ -34,7 +34,7 @@ class Lfms {
     bool nowPlaying(short int tryNumber = 1);
     bool scrobble(short int tryNumber = 1);
     bool fillTrackInfo(LfmsTrack& track, arrStr&);
-    bool putTrackIntoQueue(LfmsTrack& track);
+    bool queueTheTrack(LfmsTrack& track);
 };
 
 #endif
