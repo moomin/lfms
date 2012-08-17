@@ -2,6 +2,7 @@
 #include <cstdarg>
 #include <ctime>
 #include <iostream>
+#include <cstdlib>
 #include "helpers.h"
 #include "Log.h"
 

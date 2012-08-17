@@ -1,5 +1,6 @@
 #include <fstream>
 #include <string>
+#include <cstdlib>
 #include <getopt.h>
 #include "LfmsConfig.h"
 #include "helpers.h"
