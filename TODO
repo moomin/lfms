@@ -3,7 +3,6 @@
 - implement queue
 - implement locking
 - follow freedesktop.org's "Desktop base directory" spec (http://www.freedesktop.org/wiki/Specifications/basedir-spec)
-- adopt CMake or create autotools set of scripts to make build system portable (now it is hardcoded for Mac Os X)
 
 notes:
 a practical reason for automake (automatic generation of Makefile) is that on
